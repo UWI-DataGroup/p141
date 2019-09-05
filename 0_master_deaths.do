@@ -44,7 +44,7 @@
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version01\1-input\BNRDeathData2018_2019-09-03_corrected_matched.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version01\1-input\BNRDeathData2018_DATA_2019-09-05_0901_excel.xlsx" , firstrow case(lower)
 
 save "`datapath'\version01\2-working\2018_deaths_imported_dp" ,replace
 
