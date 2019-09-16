@@ -44,11 +44,11 @@
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version01\1-input\BNRDeathData2018_DATA_2019-09-05_0901_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version01\1-input\BNRDeathData2018_DATA_2019-09-16_1113_excel.xlsx" , firstrow case(lower)
 
 save "`datapath'\version01\2-working\2018_deaths_imported_dp" ,replace
 
-count //3,343 (2017, 2018, 2019 deaths)
+count //3,344 (2017, 2018, 2019 deaths)
 
 ***************
 ** RUN DOFILES  
@@ -105,6 +105,7 @@ do "`logpath'\3_export_deaths.do"
 	_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 	NRN			• length
+        		• duplicate identification
 	_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 	REG. ID		• length
@@ -115,7 +116,8 @@ do "`logpath'\3_export_deaths.do"
 				• invalid (with NRN)
 	_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-	DISTRICT	• invalid (with Death Parish)
+	DEATH       • invalid (with District)
+    PARISH	    
 	___________________________________________
 
 */

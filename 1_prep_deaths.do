@@ -107,6 +107,7 @@ replace pname = rtrim(ltrim(itrim(pname))) //5 changes
 
 ** (10) address: Text, if missing=99
 label var address "Deceased's Address"
+replace address = rtrim(ltrim(itrim(address))) //20 changes
 
 ** (11) parish
 label var parish "Deceased's Parish"
@@ -308,7 +309,7 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt recstattf
 
-count //3,343
+count //3,344
 
 label data "BNR MORTALITY data 2018"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
