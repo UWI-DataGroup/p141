@@ -133,7 +133,7 @@ label var nrnnd "Is National ID # documented?"
 
 ** (16) nrn: dob-####, partial missing=dob-9999, if missing=.
 label var nrn "National ID #"
-format nrn %12.0g
+format nrn %15.0g
 
 ** (17) mstatus: 1=Single 2=Married 3=Separated/Divorced 4=Widowed/Widow/Widower 9=ND
 label var mstatus "Marital Status"
