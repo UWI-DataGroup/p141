@@ -135,7 +135,7 @@ label var nrnnd "Is National ID # documented?"
 label var nrn "National ID #"
 format nrn %15.0g
 
-** (17) mstatus: 1=Single 2=Married 3=Separated/Divorced 4=Widowed/Widow/Widower 9=ND
+** (17) mstatus: 1=Single 2=Married 3=Separated/Divorced 4=Widowed/Widow/Widower 99=ND
 label var mstatus "Marital Status"
 label define mstatus_lab 1 "Single" 2 "Married" 3 "Separated/Divorced" 4 "Widowed/Widow/Widower" 99 "ND", modify
 label values mstatus mstatus_lab

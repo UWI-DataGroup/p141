@@ -135,7 +135,7 @@ count if event==1 & pname=="" //0
 ** (12) invalid
 count if event==1 & regexm(pname, "[a-z]") //3
 //list record_id event ddda pname if event==1 & regexm(pname, "[a-z]")
-replace pname= subinstr(pname,"Suspected to be ","",.) if record_id==2766
+replace pname=subinstr(pname,"Suspected to be ","",.) if record_id==2766
 replace corr_intern=corr_intern+1 if record_id==2766 //1 change
 replace pname=upper(pname) //2 changes
 replace corr_KG=corr_KG+1 if record_id==360 //1 change
@@ -254,66 +254,166 @@ replace corr_NR=corr_NR+1 if record_id==2523 //1 change
 replace corr_intern=corr_intern+1 if record_id==2639 //1 change
 
 
-** nrnnd: 1=Yes 2=No
+** dod: Y-M-D (need to clean dod before other checks)
 ** (28) missing
+count if event==1 & dod==. //0
+** (29) invalid - future date
+gen currentd=c(current_date)
+gen double today=date(currentd, "DMY")
+drop currentd
+format today %tdCCYY-NN-DD
+count if event==1 & dod>today //5
+sort record_id
+//list record_id ddda dod regdate pname if event==1 & dod>today
+replace dod=d(29apr2018) if record_id==669 //1 change
+replace dod=d(02may2018) if record_id==675 //1 change
+replace dod=d(21aug2018) if record_id==1296 //1 change
+replace dod=d(23aug2018) if record_id==1304 //1 change
+replace dod=d(27dec2018) if record_id==2708 //1 change
+replace dodyear=2018 if record_id==669 //1 change
+replace dodyear=2018 if record_id==675 //1 change
+replace dodyear=2018 if record_id==1296 //1 change
+replace dodyear=2018 if record_id==1304 //1 change
+replace dodyear=2018 if record_id==2708 //1 change
+replace corr_AH=corr_AH+1 if record_id==669|record_id==675|record_id==1296|record_id==1304 //4 changes
+replace corr_KG=corr_KG+1 if record_id==2708 //1 change
+** (30) invalid - after reg date
+count if event==1 & dod>regdate //25 (check redcapdb for if any coroner cases; 2019 TF redcap report for 'true' 2019 cases)
+//list record_id ddda dod regdate pname if event==1 & dod>regdate
+replace dod=regdate if record_id==330 //1 change
+replace regdate=d(04mar2018) if record_id==330 //1 change
+replace dod=regdate if record_id==357 //1 change
+replace regdate=d(08mar2018) if record_id==357 //1 change
+replace dod=regdate if record_id==369 //1 change
+replace regdate=d(21aug2018) if record_id==369 //1 change
+replace dod=regdate if record_id==1009 //1 change
+replace regdate=d(14jul2018) if record_id==1009 //1 change
+replace dod=regdate if record_id==1026 //1 change
+replace regdate=d(11jun2018) if record_id==1026 //1 change
+replace dod=regdate if record_id==1031 //1 change
+replace regdate=d(22jul2018) if record_id==1031 //1 change
+replace dod=regdate if record_id==1095 //1 change
+replace regdate=d(17jul2018) if record_id==1095 //1 change
+replace dod=regdate if record_id==1218 //1 change
+replace regdate=d(05nov2018) if record_id==1218 //1 change
+replace dod=regdate if record_id==1303 //1 change
+replace regdate=d(18aug2018) if record_id==1303 //1 change
+replace dod=regdate if record_id==1316 //1 change
+replace regdate=d(20aug2018) if record_id==1316 //1 change
+replace dod=regdate if record_id==1318 //1 change
+replace regdate=d(04jan2019) if record_id==1318 //1 change
+replace dod=regdate if record_id==1357 //1 change
+replace regdate=d(08dec2018) if record_id==1357 //1 change
+replace dod=regdate if record_id==1460 //1 change
+replace regdate=d(26aug2018) if record_id==1460 //1 change
+replace dod=regdate if record_id==1622 //1 change
+replace regdate=d(16mar2018) if record_id==1622 //1 change
+replace dod=regdate if record_id==1952 //1 change
+replace regdate=d(17feb2018) if record_id==1952 //1 change
+replace dod=regdate if record_id==2180 //1 change
+replace regdate=d(30jul2018) if record_id==2180 //1 change
+replace dod=regdate if record_id==2576 //1 change
+replace regdate=d(23jan2019) if record_id==2576 //1 change
+replace dod=regdate if record_id==2657 //1 change
+replace regdate=d(11feb2019) if record_id==2657 //1 change
+replace dod=regdate if record_id==2774 //1 change
+replace regdate=d(27feb2019) if record_id==2774 //1 change
+replace dod=regdate if record_id==2805 //1 change
+replace regdate=d(21feb2019) if record_id==2805 //1 change
+replace dod=regdate if record_id==3056 //1 change
+replace regdate=d(09may2019) if record_id==3056 //1 change
+replace regdate=d(08mar2019) if record_id==3095 //1 change
+replace regdate=d(27mar2019) if record_id==3178 //1 change
+replace regdate=regdate+365 if event==1 & dod>regdate //2 changes
+replace corr_KG=corr_KG+1 if record_id==11|record_id==330|record_id==357|record_id==1318 //4 changes
+replace corr_intern=corr_intern+1 if record_id==369|record_id==1622|record_id==1952|record_id==2657|record_id==2774 //5 changes
+replace corr_AH=corr_AH+1 if record_id==1009|record_id==1026|record_id==1031|record_id==1095|record_id==1303 ///
+							 |record_id==1316|record_id==1357|record_id==2576|record_id==2805|record_id==3095 ///
+							 |record_id==3178 //11 changes
+replace corr_TH=corr_TH+1 if record_id==1218|record_id==1460|record_id==3056 //3 changes
+replace corr_NR=corr_NR+1 if record_id==600|record_id==2180 //2 changes
+
+
+** dodyear (not included in single year Redcap db but done for multi-year Redcap db)
+** (31) missing
+count if event==1 & dodyear==. //0
+//list record_id ddda dod regdate if event==1 & dodyear==.
+** (32) invalid - deaths after 2018
+count if event==1 & dodyear>2018 //596
+//list record_id ddda dod dodyear regdate if event==1 & dodyear>2018
+//tab dodyear if event==1,m
+/*
+    Year of |
+      Death |      Freq.     Percent        Cum.
+------------+-----------------------------------
+       2017 |        121        3.73        3.73 - Checked these against previously-collected 2017 deaths and 0 matches
+       2018 |      2,525       77.88       81.62
+       2019 |        596       18.38      100.00
+------------+-----------------------------------
+      Total |      3,242      100.00
+*/
+
+
+** nrnnd: 1=Yes 2=No
+** (33) missing
 count if event==1 & nrnnd==. //1
 //list record_id ddda nrn if event==1 & nrnnd==.
 replace nrnnd=2 if record_id==659 //1 change
 replace corr_AH=corr_AH+1 if record_id==659 //1 change
-** (29) invalid
+** (34) invalid
 count if event==1 & nrn==. & nrnnd==1 //0
-** (30) invalid
+** (35) invalid
 count if nrn!=. & nrnnd==2 //0
 
 ** nrn: dob-####, partial missing=dob-9999, if missing=.
 tostring nrn, gen(natregno) format("%15.0f")
 replace natregno="" if natregno=="." //252 changes
-** (31) missing
+** (36) missing
 count if event==1 & nrnnd==1 & (natregno==""|natregno=="9999999999") //0
-** (32) invalid - length (checked against electoral list; no error for DA if leading zero was in redcap db)
+** (37) invalid - length (checked against electoral list; no error for DA if leading zero was in redcap db)
 count if natregno!="" & length(natregno)!=10 //39
 //list record_id ddda pname nrn natregno if natregno!="" & length(natregno)!=10
-replace natregno= subinstr(natregno,"09","009",.) if record_id==3019 //1 change
-replace natregno= subinstr(natregno,"903","0903",.) if record_id==2018 //1 change
-replace natregno= subinstr(natregno,"000","00",.) if record_id==1423 //1 change
+replace natregno=subinstr(natregno,"09","009",.) if record_id==3019 //1 change
+replace natregno=subinstr(natregno,"903","0903",.) if record_id==2018 //1 change
+replace natregno=subinstr(natregno,"000","00",.) if record_id==1423 //1 change
 replace natregno=natregno + "0057" if record_id==1581 //1 change
-replace natregno= subinstr(natregno,"204","0204",.) if record_id==612 //1 change
-replace natregno= subinstr(natregno,"4","",.) if record_id==701 //1 change
-replace natregno= subinstr(natregno,"12","0012",.) if record_id==321 //1 change
-replace natregno= subinstr(natregno,"30","310",.) if record_id==2004 //1 change
-replace natregno= subinstr(natregno,"2","23",.) if record_id==268 //1 change
+replace natregno=subinstr(natregno,"204","0204",.) if record_id==612 //1 change
+replace natregno=subinstr(natregno,"4","",.) if record_id==701 //1 change
+replace natregno=subinstr(natregno,"12","0012",.) if record_id==321 //1 change
+replace natregno=subinstr(natregno,"30","310",.) if record_id==2004 //1 change
+replace natregno=subinstr(natregno,"2","23",.) if record_id==268 //1 change
 replace natregno=natregno + "0087" if record_id==2941 //1 change
-replace natregno= subinstr(natregno,"31","311",.) if record_id==2492 //1 change
-replace natregno= subinstr(natregno,"7","77",.) if record_id==2204 //1 change
-replace natregno= subinstr(natregno,"1","01",.) if record_id==379 //1 change
+replace natregno=subinstr(natregno,"31","311",.) if record_id==2492 //1 change
+replace natregno=subinstr(natregno,"7","77",.) if record_id==2204 //1 change
+replace natregno=subinstr(natregno,"1","01",.) if record_id==379 //1 change
 replace natregno="000" + natregno if record_id==3208 //1 change
 replace natregno=natregno + "0018" if record_id==1924 //1 change
-replace natregno= subinstr(natregno,"7","07",.) if record_id==845 //1 change
-replace natregno= subinstr(natregno,"4","48",.) if record_id==1257 //1 change
+replace natregno=subinstr(natregno,"7","07",.) if record_id==845 //1 change
+replace natregno=subinstr(natregno,"4","48",.) if record_id==1257 //1 change
 replace natregno="0" + natregno if record_id==2709 //1 change
-replace natregno= subinstr(natregno,"80","8",.) if record_id==1562 //1 change
-replace natregno= subinstr(natregno,"2","02",.) if record_id==3344 //1 change
-replace natregno= subinstr(natregno,"702","70",.) if record_id==120 //1 change
-replace pname= subinstr(pname,"EN","ER",.) if record_id==120 //1 change
+replace natregno=subinstr(natregno,"80","8",.) if record_id==1562 //1 change
+replace natregno=subinstr(natregno,"2","02",.) if record_id==3344 //1 change
+replace natregno=subinstr(natregno,"702","70",.) if record_id==120 //1 change
+replace pname=subinstr(pname,"EN","ER",.) if record_id==120 //1 change
 replace corr_KG=corr_KG+1 if record_id==120 //1 change
-replace natregno= subinstr(natregno,"80","080",.) if record_id==230 //1 change
+replace natregno=subinstr(natregno,"80","080",.) if record_id==230 //1 change
 replace natregno="0" + natregno if record_id==3085 //1 change
-replace natregno= subinstr(natregno,"29","9",.) if record_id==1073 //1 change
+replace natregno=subinstr(natregno,"29","9",.) if record_id==1073 //1 change
 replace natregno="000" + natregno if record_id==782 //1 change
 replace natregno="0" + natregno if record_id==1815 //1 change
 replace natregno="00" + natregno if record_id==2540 //1 change
-replace natregno= subinstr(natregno,"43","4",.) if record_id==951 //1 change
+replace natregno=subinstr(natregno,"43","4",.) if record_id==951 //1 change
 replace natregno=natregno + "0045" if record_id==3138 //1 change
 replace natregno="0" + natregno if record_id==1740 //1 change
 replace natregno="0" + natregno if record_id==85 //1 change
-replace natregno= subinstr(natregno,"5","",.) if record_id==1268 //1 change
-replace natregno= subinstr(natregno,"1","",.) if record_id==914 //1 change
-replace natregno= subinstr(natregno,"01","001",.) if record_id==128 //1 change
+replace natregno=subinstr(natregno,"5","",.) if record_id==1268 //1 change
+replace natregno=subinstr(natregno,"1","",.) if record_id==914 //1 change
+replace natregno=subinstr(natregno,"01","001",.) if record_id==128 //1 change
 replace natregno="" if record_id==1578 //1 change - cannot find on electoral list
 replace natregno="0" + natregno if record_id==17 //1 change
 replace natregno="0" + natregno if record_id==2723 //1 change
-replace natregno= subinstr(natregno,"000","00",.) if record_id==1530 //1 change
-replace natregno= subinstr(natregno,"7","",.) if record_id==1304 //1 change
+replace natregno=subinstr(natregno,"000","00",.) if record_id==1530 //1 change
+replace natregno=subinstr(natregno,"7","",.) if record_id==1304 //1 change
 replace pname= subinstr(pname,"AM","AMS",.) if record_id==1304 //1 change
 //first and last names are inverted so switch these
 replace pname=pname + " " + pname if record_id==1304 //1 change
@@ -328,28 +428,28 @@ replace corr_KG=corr_KG+1 if record_id==1581|record_id==321|record_id==268|recor
 							|record_id==230|record_id==1073|record_id==85|record_id==128|record_id==17 // changes
 replace corr_intern=corr_intern+1 if record_id==2941|record_id==2204|record_id==379|record_id==1924 //4 changes
 replace corr_TH=corr_TH+1 if record_id==1268|record_id==914 //2 changes
-** (33) invalid - dob but missing nrn #
+** (38) invalid - dob but missing nrn #
 count if regexm(natregno,"9999")|regexm(natregno,"99") //2 (checked against electoral list)
 //list record_id ddda natregno pname if regexm(natregno,"9999")|regexm(natregno,"99")
 replace natregno="" if record_id==2096
-replace natregno= subinstr(natregno,"21","15",.) if record_id==376 //1 change
-replace natregno= subinstr(natregno,"99","14",.) if record_id==376 //1 change
-replace natregno= subinstr(natregno,"99","00",.) if record_id==3081 //1 change
+replace natregno=subinstr(natregno,"21","15",.) if record_id==376 //1 change
+replace natregno=subinstr(natregno,"99","14",.) if record_id==376 //1 change
+replace natregno=subinstr(natregno,"99","00",.) if record_id==3081 //1 change
 replace corr_NR=corr_NR+1 if record_id==2096 //1 change
 replace corr_AH=corr_AH+1 if record_id==3081 //1 change
-** (34) invalid - female with 'male' NRN
+** (39) invalid - female with 'male' NRN
 count if sex==2 & (regex(substr(natregno,-2,1), "[1,3,5,7,9]")) & !(strmatch(strupper(natregno), "*-9999*")) //11
 //list record_id ddda pname natregno sex cod* if sex==2 & (regex(substr(natregno,-2,1), "[1,3,5,7,9]")) & !(strmatch(strupper(natregno), "*-9999*"))
 recode sex 2=1 if record_id==1423|record_id==1537|record_id==2335|record_id==1017|record_id==2891 //5 changes
 replace corr_AH=corr_AH+1 if record_id==1423|record_id==1017 //2 changes
 replace corr_KG=corr_KG+1 if record_id==2335 //1 change
-** (35) invalid - male with 'female' NRN
+** (40) invalid - male with 'female' NRN
 count if sex==1 & regex(substr(natregno,-2,1), "[0,2,4,6,8]") //8
 //list record_id ddda pname natregno sex cod* if sex==1 & regex(substr(natregno,-2,1), "[0,2,4,6,8]")
 recode sex 1=2 if record_id==817|record_id==3294|record_id==3300|record_id==3311|record_id==2155|record_id==2012 //6 changes
 replace corr_AH=corr_AH+1 if record_id==817|record_id==2155|record_id==2012 //3 changes
 replace corr_KG=corr_KG+1 if record_id==3294|record_id==3300|record_id==3311 //3 changes
-** (36) invalid - age vs dob(nrn)
+** (41) invalid - age vs dob(nrn)
 gen dobyr=substr(natregno, 1, 2) if natregno!=""
 gen dobmon=substr(natregno, 3, 2) if natregno!=""
 gen dobday=substr(natregno, 5, 2) if natregno!=""
@@ -358,107 +458,343 @@ count if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") //19
 replace dobyr="20"+dobyr if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") //19 changes
 replace dobyr="19"+dobyr if length(dobyr)==2 //3,042 changes
 count if length(dobyr)>4 //0
+count if dobday!="" & (dobday!="01"&dobday!="02"&dobday!="03"&dobday!="04"&dobday!="05"&dobday!="06"&dobday!="07"&dobday!="08"&dobday!="09"&dobday!="10"&dobday!="11"&dobday!="12" ///
+		 &dobday!="13"&dobday!="14"&dobday!="15"&dobday!="16"&dobday!="17"&dobday!="18"&dobday!="19"&dobday!="20"&dobday!="21"&dobday!="22"&dobday!="23"&dobday!="24"&dobday!="25" ///
+		 &dobday!="26"&dobday!="27"&dobday!="28"&dobday!="29"&dobday!="30"&dobday!="31") //2
+/*list record_id ddda dobday natregno pname if dobday!="" & (dobday!="01"&dobday!="02"&dobday!="03"&dobday!="04"&dobday!="05"&dobday!="06"&dobday!="07"&dobday!="08"&dobday!="09"&dobday!="10"&dobday!="11"&dobday!="12" ///
+		 &dobday!="13"&dobday!="14"&dobday!="15"&dobday!="16"&dobday!="17"&dobday!="18"&dobday!="19"&dobday!="20"&dobday!="21"&dobday!="22"&dobday!="23"&dobday!="24"&dobday!="25" ///
+		 &dobday!="26"&dobday!="27"&dobday!="28"&dobday!="29"&dobday!="30"&dobday!="31")
+*/
+replace dobday="09" if record_id==1417 //1 change
+replace natregno=subinstr(natregno,"90","09",.) if record_id==1417 //1 change
+replace dobday="31" if record_id==2872 //1 change
+replace natregno=subinstr(natregno,"32","31",.) if record_id==2872 //1 change
+replace corr_AH=corr_AH+1 if record_id==1417 //1 change
+replace corr_KG=corr_KG+1 if record_id==2872 //1 change
+count if dobmon!="" & (dobmon!="01"&dobmon!="02"&dobmon!="03"&dobmon!="04"&dobmon!="05"&dobmon!="06"&dobmon!="07"&dobmon!="08"&dobmon!="09"&dobmon!="10"&dobmon!="11"&dobmon!="12") //2
+//list record_id ddda dobmon natregno pname if dobmon!="" & (dobmon!="01"&dobmon!="02"&dobmon!="03"&dobmon!="04"&dobmon!="05"&dobmon!="06"&dobmon!="07"&dobmon!="08"&dobmon!="09"&dobmon!="10"&dobmon!="11"&dobmon!="12")
+replace dobmon="10" if record_id==1727 //1 change
+replace natregno=subinstr(natregno,"20","10",.) if record_id==1727 //1 change
+replace dobyr=subinstr(dobyr,"0","9",.) if record_id==3267 //1 change
+replace dobmon=subinstr(dobmon,"9","0",.) if record_id==3267 //1 change
+replace natregno=subinstr(natregno,"09","90",.) if record_id==3267 //1 change
+replace corr_AH=corr_AH+1 if record_id==1727|record_id==3267
 gen birthdate=dobyr+dobmon+dobday
 gen dob=date(birthdate, "YMD")
 format dob %tdCCYY-NN-DD
 gen age2=int((dod - dob)/365.25) //now use this to assign missing age
-count if age!=age2 & natregno!="" & dob!=. //84
+count if age!=age2 & natregno!="" & dob!=. //79
 sort record_id
 //list record_id age age2 agetxt dod dob natregno if age!=age2 & natregno!=""
-STOPPED HERE replace
+replace dob=dob+36525 if record_id==349
+replace agetxt=6 if record_id==470|record_id==970
+replace dob=dob+36528 if record_id==475
+replace dob=dob+36525 if record_id==2722
+replace age2=age if record_id==349|record_id==475|record_id==2722
+count if age!=age2 & natregno!="" & dob!=. //76
+replace age=age2 if age!=age2 & natregno!="" & dob!=. & record_id!=921 //75 changes
 drop nrn dob dobday dobmon dobyr age2
 rename natregno nrn
 
-** (17) mstatus: 1=Single 2=Married 3=Separated/Divorced 4=Widowed/Widow/Widower 9=ND
-label var mstatus "Marital Status"
-label define mstatus_lab 1 "Single" 2 "Married" 3 "Separated/Divorced" 4 "Widowed/Widow/Widower" 99 "ND", modify
-label values mstatus mstatus_lab
 
-** (18) occu: Text, if missing=99
-label var occu "Occupation"
+** mstatus: 1=Single 2=Married 3=Separated/Divorced 4=Widowed/Widow/Widower 99=ND
+** (42) missing
+count if event==1 & mstatus==. //0
 
-** (19) durationnum: Integer - min=0, max=99, if missing=99
-label var durationnum "Duration of Illness"
 
-** (20) durationtxt
-label var durationtxt "Duration Qualifier"
-label define durationtxt_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values durationtxt durationtxt_lab
+** occu: Text, if missing=99
+** (43) missing
+count if event==1 & occu=="" //0
+** (44) invalid 
+count if event==1 & regexm(occu, "[a-z]") //8
+//list record_id ddda occu if event==1 & regexm(occu, "[a-z]")
+replace occu=subinstr(occu,"(minutes)","",.) if record_id==6 //1 change
+replace occu=upper(occu) //7 changes
+replace occu = rtrim(ltrim(itrim(occu))) //2 changes
+replace corr_KG=corr_KG+1 if record_id==6 //1 change
+replace corr_AH=corr_AH+1 if record_id==1511|record_id==2580 //2 changes
+replace corr_intern=corr_intern+1 if record_id==2198|record_id==2380|record_id==2399|record_id==2426|record_id==2955 //5 changes
 
-** (21) dod: Y-M-D
-format dod %tdCCYY-NN-DD
-label var dod "Date of Death"
 
-** (22) dodyear (not included in single year Redcap db but done for multi-year Redcap db)
-gen int dodyear=year(dod)
-label var dodyear "Year of Death"
+** durationnum: Integer - min=0, max=99, if missing=99
+** (45) missing
+count if event==1 & durationnum==. //0
+** (46) invalid
+count if durationnum==999 & durationtxt!=99 //39
+//list record_id ddda durationnum durationtxt if durationnum==999 & durationtxt!=99
+replace durationtxt=99 if durationnum==999 & durationtxt!=99 //39 changes
+replace corr_AH=corr_AH+1 if record_id==465|record_id==477|record_id==722|record_id==1248|record_id==1366 ///
+							 |record_id==1576|record_id==1787|record_id==1997|record_id==2010|record_id==2243 ///
+							 |record_id==2278|record_id==2568|record_id==2623|record_id==2632|record_id==2978 ///
+							 |record_id==3259 //16 changes
+replace corr_TH=corr_TH+1 if record_id==560|record_id==649|record_id==713|record_id==868|record_id==1463 //5 changes
+replace corr_NR=corr_NR+1 if record_id==621|record_id==1697|record_id==2213|record_id==3003 //4 changes
+replace corr_KG=corr_KG+1 if record_id==851|record_id==867|record_id==897|record_id==1109|record_id==1186 ///
+							 |record_id==1336|record_id==1572|record_id==1584|record_id==1603|record_id==1903 ///
+							 |record_id==2904 //11 changes
+replace corr_intern=corr_intern+1 if record_id==2388|record_id==2768|record_id==2845 //3 changes
+count if durationnum==99 & durationtxt==99 //11
+//list record_id ddda durationnum durationtxt if durationnum==99 & durationtxt==99
+replace durationnum=999 if durationnum==99 & durationtxt==99 //11 changes
 
-** (23) cod1a: Text, if missing=99
-label var cod1a "COD 1a"
 
-** (24) onsetnumcod1a: Integer - min=0, max=99, if missing=99
-label var onsetnumcod1a "Onset Death Interval-COD 1a"
+** durationtxt - 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (47) missing
+count if durationnum!=. & durationtxt==. //133
+//list record_id ddda durationnum durationtxt if durationnum!=. & durationtxt==.
+replace durationnum=999 if durationnum!=. & durationtxt==. //133 changes
+replace durationtxt=99 if durationnum==999 & durationtxt==. //133 changes
+** (48) possibly invalid
+count if durationnum!=999 & durationtxt==99 //4 - 1 incorrect; 3 correct
+//list record_id ddda durationnum durationtxt onset* if durationnum!=999 & durationtxt==99
+replace durationtxt=4 if record_id==3058 //1 change
 
-** (25) onsettxtcod1a: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod1a "Onset Qualifier-COD 1a"
-label define onsettxtcod1a_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod1a onsettxtcod1a_lab
 
-** (26) cod1b: Text, if missing=99
-label var cod1b "COD 1b"
+** cod1a: Text, if missing=99
+** (49) missing
+count if event==1 & cod1a=="" //0
+** (50) invalid
+count if event==1 & regexm(cod1a, "[a-z]") //3 - JC added in extra info in cod to redcap db field comment
+//list record_id ddda cod1a onsetnumcod1a onsettxtcod1a if event==1 & regexm(cod1a, "[a-z]")
+replace cod1a=subinstr(cod1a,"[< 5 min]","",.) if record_id==6 //1 change
+replace onsetnumcod1a=1 if record_id==6 //1 change
+replace onsettxtcod1a=1 if record_id==6 //1 change
+replace cod1a=subinstr(cod1a,"(and 9 mths)","",.) if record_id==15 //1 change
+replace cod1a=subinstr(cod1a,"(1 hr)","",.) if record_id==16 //1 change
+replace onsettxtcod1a=1 if record_id==16 //1 change
+replace cod1a=upper(cod1a) //0 changes
+replace cod1a = rtrim(ltrim(itrim(cod1a))) //13 changes
+replace corr_KG=corr_KG+1 if record_id==6|record_id==15|record_id==16 //3 changes
 
-** (27) onsetnumcod1b: Integer - min=0, max=99, if missing=99
-label var onsetnumcod1b "Onset Death Interval-COD 1b"
 
-** (28) onsettxtcod1b: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod1b "Onset Qualifier-COD 1b"
-label define onsettxtcod1b_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod1b onsettxtcod1b_lab
+** onsetnumcod1a: Integer - min=0, max=99, if missing=99
+** (51) missing
+count if event==1 & cod1a!="99" & onsetnumcod1a==. //0
+** (52) possibly invalid
+count if onsetnumcod1a==999 & onsettxtcod1a!=99 //72 - all correct
+//list record_id ddda onsetnumcod1a onsettxtcod1a if onsetnumcod1a==999 & onsettxtcod1a!=99
+count if onsetnumcod1a==99 & onsettxtcod1a==99 //5
+//list record_id ddda onsetnumcod1a onsettxtcod1a if onsetnumcod1a==99 & onsettxtcod1a==99
+replace onsetnumcod1a=999 if onsetnumcod1a==99 & onsettxtcod1a==99 //5 changes
 
-** (29) cod1c: Text, if missing=99
-label var cod1c "COD 1c"
+** onsettxtcod1a: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (53) missing
+count if onsetnumcod1a!=. & onsettxtcod1a==. //266
+//list record_id ddda onsetnumcod1a onsettxtcod1a if onsetnumcod1a!=. & onsettxtcod1a==.
+replace onsettxtcod1a=3 if record_id==1253
+replace corr_AH=corr_AH+1 if record_id==1253
+replace onsetnumcod1a=999 if onsetnumcod1a!=. & onsettxtcod1a==. //265 changes
+count if onsetnumcod1a==999 & onsettxtcod1a==. //265
+replace onsettxtcod1a=99 if onsetnumcod1a==999 & onsettxtcod1a==. //265 changes
+** (54) possibly invalid
+count if onsetnumcod1a!=999 & onsettxtcod1a==99 //10 - all correct
+//list record_id ddda onsetnumcod1a onsettxtcod1a onset* if onsetnumcod1a!=999 & onsettxtcod1a==99
 
-** (30) onsetnumcod1c: Integer - min=0, max=99, if missing=99
-label var onsetnumcod1c "Onset Death Interval-COD 1c"
 
-** (31) onsettxtcod1c: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod1c "Onset Qualifier-COD 1c"
-label define onsettxtcod1c_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod1c onsettxtcod1c_lab
+** cod1b: Text, if missing=99
+** (55) missing
+count if event==1 & cod1b=="" //0
+** (56) invalid
+count if event==1 & regexm(cod1b, "[a-z]") //3 - JC added in extra info in cod to redcap db field comment
+//list record_id ddda cod1b onsetnumcod1b onsettxtcod1b if event==1 & regexm(cod1b, "[a-z]")
+replace cod1b=subinstr(cod1b,"(yrs)","",.) if record_id==12 //1 change
+replace onsettxtcod1b=4 if record_id==12 //1 change
+replace cod1b=subinstr(cod1b,"(>10 yrs)","",.) if record_id==16 //1 change
+replace onsetnumcod1b=10 if record_id==16 //1 change
+replace onsettxtcod1b=4 if record_id==16 //1 change
+replace cod1b=upper(cod1b) //1 change
+replace cod1b = rtrim(ltrim(itrim(cod1b))) //8 changes
+replace corr_KG=corr_KG+1 if record_id==12|record_id==16 //2 changes
 
-** (32) cod1d: Text, if missing=99
-label var cod1d "COD 1d"
 
-** (33) onsetnumcod1d: Integer - min=0, max=99, if missing=99
-label var onsetnumcod1d "Onset Death Interval-COD 1d"
+** onsetnumcod1b: Integer - min=0, max=99, if missing=99
+** (57) missing
+count if event==1 & cod1b!="99" & onsetnumcod1b==. //0
+** (58) possibly invalid
+count if onsetnumcod1b==999 & onsettxtcod1b!=99 //58 - all correct
+//list record_id ddda onsetnumcod1b onsettxtcod1b if onsetnumcod1b==999 & onsettxtcod1b!=99
+count if onsetnumcod1b==99 & onsettxtcod1b==99 //2
+//list record_id ddda onsetnumcod1b onsettxtcod1b if onsetnumcod1b==99 & onsettxtcod1b==99
+replace onsetnumcod1b=999 if onsetnumcod1b==99 & onsettxtcod1b==99 //2 changes
 
-** (34) onsettxtcod1d: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod1d "Onset Qualifier-COD 1d"
-label define onsettxtcod1d_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod1d onsettxtcod1d_lab
 
-** (35) cod2a: Text, if missing=99
-label var cod2a "COD 2a"
+** onsettxtcod1b: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (59) missing
+count if onsetnumcod1b!=. & onsettxtcod1b==. //170
+//list record_id ddda onsetnumcod1b onsettxtcod1b if onsetnumcod1b!=. & onsettxtcod1b==.
+replace onsetnumcod1b=999 if onsetnumcod1b!=. & onsettxtcod1b==. //170 changes
+count if onsetnumcod1b==999 & onsettxtcod1b==. //170
+replace onsettxtcod1b=99 if onsetnumcod1b==999 & onsettxtcod1b==. //170 changes
+** (60) possibly invalid
+count if onsetnumcod1b!=999 & onsettxtcod1b==99 //1 - all correct
+//list record_id ddda onsetnumcod1b onsettxtcod1b onset* if onsetnumcod1b!=999 & onsettxtcod1b==99
 
-** (36) onsetnumcod2a: Integer - min=0, max=99, if missing=99
-label var onsetnumcod2a "Onset Death Interval-COD 2a"
 
-** (37) onsettxtcod2a: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod2a "Onset Qualifier-COD 2a"
-label define onsettxtcod2a_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod2a onsettxtcod2a_lab
+** cod1c: Text, if missing=99
+** (61) missing
+count if event==1 & cod1c=="" //0
+** (62) invalid
+count if event==1 & regexm(cod1c, "[a-z]") //2 - JC added in extra info in cod to redcap db field comment
+//list record_id ddda cod1c onsetnumcod1c onsettxtcod1c if event==1 & regexm(cod1c, "[a-z]")
+replace cod1c=subinstr(cod1c,"(yrs)","",.) if record_id==12 //1 change
+replace onsettxtcod1c=4 if record_id==12 //1 change
+replace cod1c=subinstr(cod1c,"(>10yrs)","",.) if record_id==16 //1 change
+replace onsetnumcod1c=10 if record_id==16 //1 change
+replace onsettxtcod1c=4 if record_id==16 //1 change
+replace cod1c=upper(cod1c) //0 changes
+replace cod1c = rtrim(ltrim(itrim(cod1c))) //5 changes
+replace corr_KG=corr_KG+1 if record_id==12|record_id==16 //2 changes
 
-** (38) cod2b: Text, if missing=99
-label var cod2b "COD 2b"
 
-** (39) onsetnumcod2b: Integer - min=0, max=99, if missing=99
-label var onsetnumcod2b "Onset Death Interval-COD 2b"
+** onsetnumcod1c: Integer - min=0, max=99, if missing=99
+** (63) missing
+count if event==1 & cod1c!="99" & onsetnumcod1c==. //1
+//list record_id ddda cod1c onsetnumcod1c onsettxtcod1c if event==1 & cod1c!="99" & onsetnumcod1c==.
+replace onsetnumcod1c=999 if record_id==821 //1 change
+replace onsettxtcod1c=99 if record_id==821 //1 change
+replace corr_AH=corr_AH+1 if record_id==821 //1 change
+** (64) possibly invalid
+count if onsetnumcod1c==999 & onsettxtcod1c!=99 //19 - 1 incorrect; 18 correct
+//list record_id ddda onsetnumcod1c onsettxtcod1c if onsetnumcod1c==999 & onsettxtcod1c!=99
+replace onsettxtcod1c=99 if record_id==1239 //1 change
+replace corr_AH=corr_AH+1 if record_id==1239 //1 change
+count if onsetnumcod1c==99 & onsettxtcod1c==99 //0
+//list record_id ddda onsetnumcod1c onsettxtcod1c if onsetnumcod1c==99 & onsettxtcod1c==99
 
-** (40) onsettxtcod2b: 1=DAYS 2=WEEKS 3=MONTHS 4=YEARS
-label var onsettxtcod2b "Onset Qualifier-COD 2b"
-label define onsettxtcod2b_lab 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND", modify
-label values onsettxtcod2b onsettxtcod2b_lab
 
+** onsettxtcod1c: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (65) missing
+count if onsetnumcod1c!=. & onsettxtcod1c==. //74
+//list record_id ddda onsetnumcod1c onsettxtcod1c if onsetnumcod1c!=. & onsettxtcod1c==.
+replace corr_AH=corr_AH+1 if record_id==1239 //1 change
+replace onsetnumcod1c=999 if onsetnumcod1c!=. & onsettxtcod1c==. //73 changes
+count if onsetnumcod1c==999 & onsettxtcod1c==. //74
+replace onsettxtcod1c=99 if onsetnumcod1c==999 & onsettxtcod1c==. //74 changes
+** (66) possibly invalid
+count if onsetnumcod1c!=999 & onsettxtcod1c==99 //1 - all correct
+//list record_id ddda onsetnumcod1c onsettxtcod1c onset* if onsetnumcod1c!=999 & onsettxtcod1c==99
+
+
+** cod1d: Text, if missing=99
+** (67) missing
+count if event==1 & cod1d=="" //1
+//list record_id ddda cod1d if event==1 & cod1d==""
+replace cod1d="99" if record_id==821 //1 change
+replace corr_AH=corr_AH+1 if record_id==821 //1 change
+** (68) invalid
+count if event==1 & regexm(cod1d, "[a-z]") //0
+//list record_id ddda cod1d onsetnumcod1d onsettxtcod1d if event==1 & regexm(cod1d, "[a-z]")
+replace cod1d=upper(cod1d) //0 changes
+replace cod1d = rtrim(ltrim(itrim(cod1d))) //2 changes
+
+
+** onsetnumcod1d: Integer - min=0, max=99, if missing=99
+** (69) missing
+count if event==1 & cod1d!="99" & onsetnumcod1d==. //0
+//list record_id ddda cod1d onsetnumcod1d onsettxtcod1d if event==1 & cod1d!="99" & onsetnumcod1d==.
+** (70) possibly invalid
+count if onsetnumcod1d==999 & onsettxtcod1d!=99 //9 - all correct
+//list record_id ddda onsetnumcod1d onsettxtcod1d if onsetnumcod1d==999 & onsettxtcod1d!=99
+count if onsetnumcod1d==99 & onsettxtcod1d==99 //0
+//list record_id ddda onsetnumcod1d onsettxtcod1d if onsetnumcod1d==99 & onsettxtcod1d==99
+
+
+** onsettxtcod1d: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (71) missing
+count if onsetnumcod1d!=. & onsettxtcod1d==. //11
+//list record_id ddda onsetnumcod1d onsettxtcod1d if onsetnumcod1d!=. & onsettxtcod1d==.
+replace onsetnumcod1d=999 if onsetnumcod1d!=. & onsettxtcod1d==. //11 changes
+count if onsetnumcod1d==999 & onsettxtcod1d==. //11
+replace onsettxtcod1d=99 if onsetnumcod1d==999 & onsettxtcod1d==. //11 changes
+** (72) possibly invalid
+count if onsetnumcod1d!=999 & onsettxtcod1d==99 //1
+//list record_id ddda onsetnumcod1d onsettxtcod1d onset* if onsetnumcod1d!=999 & onsettxtcod1d==99
+replace onsettxtcod1d=4 if record_id==2964 //1 change
+
+
+** cod2a: Text, if missing=99
+** (73) missing
+count if event==1 & cod2a=="" //1
+//list record_id ddda cod2a if event==1 & cod2a==""
+replace cod2a="99" if record_id==821 //1 change
+replace corr_AH=corr_AH+1 if record_id==821 //1 change
+** (74) invalid
+count if event==1 & regexm(cod2a, "[a-z]") //3 - JC added in extra info in cod to redcap db field comment
+//list record_id ddda cod2a onsetnumcod2a onsettxtcod2a if event==1 & regexm(cod2a, "[a-z]")
+replace cod2a=subinstr(cod2a,"(yrs)","",.) if record_id==12 //1 change
+replace onsettxtcod2a=4 if record_id==12 //1 change
+replace cod2a=upper(cod2a) //2 changes
+replace cod2a = rtrim(ltrim(itrim(cod2a))) //3 changes
+replace corr_KG=corr_KG+1 if record_id==12 //1 change
+
+
+** onsetnumcod2a: Integer - min=0, max=99, if missing=99
+** (75) missing
+count if event==1 & cod2a!="99" & onsetnumcod2a==. //0
+//list record_id ddda cod2a onsetnumcod2a onsettxtcod2a if event==1 & cod2a!="99" & onsetnumcod2a==.
+** (76) possibly invalid
+count if onsetnumcod2a==999 & onsettxtcod2a!=99 //83 - all correct
+//list record_id ddda onsetnumcod2a onsettxtcod2a if onsetnumcod2a==999 & onsettxtcod2a!=99
+count if onsetnumcod2a==99 & onsettxtcod2a==99 //6
+//list record_id ddda onsetnumcod2a onsettxtcod2a if onsetnumcod2a==99 & onsettxtcod2a==99
+replace corr_AH=corr_AH+1 if record_id==1257 //1 change
+replace onsetnumcod2a=999 if onsetnumcod2a==99 & onsettxtcod2a==99 //6 changes
+
+
+** onsettxtcod2a: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (77) missing
+count if onsetnumcod2a!=. & onsettxtcod2a==. //129
+//list record_id ddda onsetnumcod2a onsettxtcod2a if onsetnumcod2a!=. & onsettxtcod2a==.
+replace onsetnumcod2a=999 if onsetnumcod2a!=. & onsettxtcod2a==. //129 changes
+count if onsetnumcod2a==999 & onsettxtcod2a==. //129
+replace onsettxtcod2a=99 if onsetnumcod2a==999 & onsettxtcod2a==. //129 changes
+** (78) possibly invalid
+count if onsetnumcod2a!=999 & onsettxtcod2a==99 //1 - all correct
+//list record_id ddda onsetnumcod2a onsettxtcod2a onset* if onsetnumcod2a!=999 & onsettxtcod2a==99
+
+
+** cod2b: Text, if missing=99
+** (79) missing
+count if event==1 & cod2b=="" //1
+//list record_id ddda cod2b if event==1 & cod2b==""
+replace cod2b="99" if record_id==821 //1 change
+replace corr_AH=corr_AH+1 if record_id==821 //1 change
+** (80) invalid
+count if event==1 & regexm(cod2b, "[a-z]") //1 - JC added in extra info in cod to redcap db field comment
+//list record_id ddda cod2b onsetnumcod2b onsettxtcod2b if event==1 & regexm(cod2b, "[a-z]")
+replace cod2b=subinstr(cod2b,"(yrs)","",.) if record_id==1 //1 change
+replace onsetnumcod2b=999 if record_id==1 //1 change
+replace onsettxtcod2b=4 if record_id==1 //1 change
+replace cod2b=upper(cod2b) //0 changes
+replace cod2b = rtrim(ltrim(itrim(cod2b))) //3 changes
+replace corr_KG=corr_KG+1 if record_id==1 //1 change
+
+
+** onsetnumcod2b: Integer - min=0, max=99, if missing=99
+** (81) missing
+count if event==1 & cod2b!="99" & onsetnumcod2b==. //0
+//list record_id ddda cod2b onsetnumcod2b onsettxtcod2b if event==1 & cod2b!="99" & onsetnumcod2b==.
+** (82) possibly invalid
+count if onsetnumcod2b==999 & onsettxtcod2b!=99 //43 - all correct
+//list record_id ddda onsetnumcod2b onsettxtcod2b if onsetnumcod2b==999 & onsettxtcod2b!=99
+count if onsetnumcod2b==99 & onsettxtcod2b==99 //2
+//list record_id ddda onsetnumcod2b onsettxtcod2b if onsetnumcod2b==99 & onsettxtcod2b==99
+replace corr_AH=corr_AH+1 if record_id==1257 //1 change
+replace onsetnumcod2b=999 if onsetnumcod2b==99 & onsettxtcod2b==99 //2 changes
+
+
+** onsettxtcod2b: 1 "Days" 2 "Weeks" 3 "Months" 4 "Years" 99 "ND"
+** (83) missing
+count if onsetnumcod2b!=. & onsettxtcod2b==. //67
+//list record_id ddda onsetnumcod2b onsettxtcod2b if onsetnumcod2b!=. & onsettxtcod2b==.
+replace onsetnumcod2b=999 if onsetnumcod2b!=. & onsettxtcod2b==. //67 changes
+count if onsetnumcod2b==999 & onsettxtcod2b==. //67
+replace onsettxtcod2b=99 if onsetnumcod2b==999 & onsettxtcod2b==. //67 changes
+** (84) possibly invalid
+count if onsetnumcod2b!=999 & onsettxtcod2b==99 //1 - all correct
+//list record_id ddda onsetnumcod2b onsettxtcod2b onset* if onsetnumcod2b!=999 & onsettxtcod2b==99
+
+STOPPED HERE
 ** (41) pod: Text, if missing=99
 label var pod "Place of Death"
 
@@ -469,6 +805,10 @@ label define deathparish_lab 1 "Christ Church" 2 "St. Andrew" 3 "St. George" 4 "
 label values deathparish deathparish_lab
 
 ** (43) regdate: Y-M-D
+** () invalid - future date
+count if event==1 & regdate>today //
+sort record_id
+//list record_id ddda dod regdate pname if event==1 & regdate>today
 label var regdate "Date of Registration"
 format regdate %tdCCYY-NN-DD
 
