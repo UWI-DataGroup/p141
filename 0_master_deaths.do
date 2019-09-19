@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      28-AUG-2019
-    // 	date last modified      28_AUG-2019
+    // 	date last modified      28-AUG-2019
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2018 death data.
@@ -17,7 +17,7 @@
 
     
     ** General algorithm set-up
-    version 15
+    version 16
     clear all
     macro drop _all
     set more off

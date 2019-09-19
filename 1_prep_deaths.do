@@ -17,7 +17,7 @@
 
     
     ** General algorithm set-up
-    version 15
+    version 16
     clear all
     macro drop _all
     set more off
@@ -85,7 +85,7 @@ label var certtype "Certificate Type"
 label define certtype_lab 1 "Medical" 2 "Post Mortem" 3 "Coroner" 99 "ND", modify
 label values certtype certtype_lab
 
-** (7) regnum: Text, if missing=9999
+** (7) regnum: integer, if missing=9999
 label var regnum "Registry Dept #"
 
 ** (8) district: 1=A 2=B 3=C 4=D 5=E 6=F
