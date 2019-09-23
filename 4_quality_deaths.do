@@ -47,7 +47,7 @@ count //2,719
 ** Create quality report - per DA
 ** TOTAL records entered
 //gen fieldtot=44 per record
-gen rectot=_N
+gen abstot=_N
 egen abstot_AH=count(ddda) if ddda==25
 egen abstot_KG=count(ddda) if ddda==4
 egen abstot_NR=count(ddda) if ddda==20
@@ -56,12 +56,12 @@ egen abstot_TH=count(ddda) if ddda==14
 egen abstot_intern=count(ddda) if ddda==98
 
 ** PERCENTAGE records entered
-gen absper_AH=abstot_AH/rectot*100
-gen absper_KG=abstot_KG/rectot*100
-gen absper_NR=abstot_NR/rectot*100
-gen absper_KWG=abstot_KWG/rectot*100
-gen absper_TH=abstot_TH/rectot*100
-gen absper_intern=abstot_intern/rectot*100
+gen absper_AH=abstot_AH/abstot*100
+gen absper_KG=abstot_KG/abstot*100
+gen absper_NR=abstot_NR/abstot*100
+gen absper_KWG=abstot_KWG/abstot*100
+gen absper_TH=abstot_TH/abstot*100
+gen absper_intern=abstot_intern/abstot*100
 
 ** TOTAL corrections
 /*
@@ -91,10 +91,10 @@ egen corrtot_intern=total(rowtot_intern) //22
 ** PERCENTAGE corrections
 gen corrper_AH=corrtot_AH/corrtot*100
 gen corrper_KG=corrtot_KG/corrtot*100
-gen corrper_NR=corrtot_AH/corrtot*100
-gen corrper_KWG=corrtot_AH/corrtot*100
-gen corrper_TH=corrtot_AH/corrtot*100
-gen corrper_intern=corrtot_AH/corrtot*100
+gen corrper_NR=corrtot_NR/corrtot*100
+gen corrper_KWG=corrtot_KWG/corrtot*100
+gen corrper_TH=corrtot_TH/corrtot*100
+gen corrper_intern=corrtot_intern/corrtot*100
 
 ** TOTAL records with corrections
 egen corrrectot=count(rowtot) if rowtot!=0 & rowtot!=.
@@ -105,200 +105,541 @@ egen corrrectot_KWG=count(rowtot_KWG) if rowtot_KWG!=0 & rowtot_KWG!=.
 egen corrrectot_TH=count(rowtot_TH) if rowtot_TH!=0 & rowtot_TH!=.
 egen corrrectot_intern=count(rowtot_intern) if rowtot_intern!=0 & rowtot_intern!=.
 
-STOPPED HERE
 ** PERCENTAGE records with corrections
-** TOTAL records with no errors
+gen corrrecper_AH=corrrectot_AH/corrrectot*100
+gen corrrecper_KG=corrrectot_KG/corrrectot*100
+gen corrrecper_NR=corrrectot_NR/corrrectot*100
+gen corrrecper_KWG=corrrectot_KWG/corrrectot*100
+gen corrrecper_TH=corrrectot_TH/corrrectot*100
+gen corrrecper_intern=corrrectot_intern/corrrectot*100
+
+** TOTAL records with no corrections
+egen nocorrrectot=count(rowtot) if rowtot==0|rowtot==.
+egen nocorrrectot_AH=count(rowtot_AH) if rowtot_AH==0|rowtot_AH==.
+egen nocorrrectot_KG=count(rowtot_KG) if rowtot_KG==0|rowtot_KG==.
+egen nocorrrectot_NR=count(rowtot_NR) if rowtot_NR==0|rowtot_NR==.
+egen nocorrrectot_KWG=count(rowtot_KWG) if rowtot_KWG==0|rowtot_KWG==.
+egen nocorrrectot_TH=count(rowtot_TH) if rowtot_TH==0|rowtot_TH==.
+egen nocorrrectot_intern=count(rowtot_intern) if rowtot_intern==0|rowtot_intern==.
+
 ** PERCENTAGE records with no errors
-see L:\BNR_data\DM\data_review\2019\cr5\versions\version01\dofiles
-** TOTAL records - TUMOUR table
-preserve
-drop if ttdoa<d(01jan2019) | ttdoa>d(30jun2019)
-contract tid ttda ttdoa, freq(count) percent(percentage)
-total count //758
-egen tttot=total(count)
-egen ttkwg=total(count) if ttda=="13"
-egen ttth=total(count) if ttda=="14"
-collapse tttot ttkwg ttth
-gen ttkwgper=ttkwg/tttot*100
-gen ttthper=ttth/tttot*100
-save "data\raw\2019_p1appraisals_cancer_TT_figs1.dta" ,replace
-restore
+gen nocorrrecper_AH=nocorrrectot_AH/nocorrrectot*100
+gen nocorrrecper_KG=nocorrrectot_KG/nocorrrectot*100
+gen nocorrrecper_NR=nocorrrectot_NR/nocorrrectot*100
+gen nocorrrecper_KWG=nocorrrectot_KWG/nocorrrectot*100
+gen nocorrrecper_TH=nocorrrectot_TH/nocorrrectot*100
+gen nocorrrecper_intern=nocorrrectot_intern/nocorrrectot*100
+
+** PERCENTAGE accuracy rate
+gen accuracy_AH=(abstot_AH-corrtot_AH)/abstot_AH*100
+gen accuracy_KG=(abstot_KG-corrtot_KG)/abstot_KG*100
+gen accuracy_NR=(abstot_NR-corrtot_NR)/abstot_NR*100
+gen accuracy_KWG=(abstot_KWG-corrtot_KWG)/abstot_KWG*100
+gen accuracy_TH=(abstot_TH-corrtot_TH)/abstot_TH*100
+gen accuracy_intern=(abstot_intern-corrtot_intern)/abstot_intern*100
+
+** CREATE dataset with results to be used in pdf report
+collapse abstot* absper* corrtot* corrper* corrrectot* corrrecper* nocorrrectot* nocorrrecper* accuracy*
+format absper* corrper* corrrecper* nocorrrecper* accuracy* %9.0f
+save "`datapath'\version01\3-output\2018_deaths_dqi_da" ,replace
 
 
-** QUALITY REPORT
-
-
-				***************************
-				*	    PDF REPORT  	  *
-				*	   QUANTITY: AH 	  *
-				***************************
+				****************************
+				*	    PDF REPORT  	   *
+				*  QUANTITY & QUALITY: AH  *
+				****************************
 
 putpdf clear
 putpdf begin
 
 //Create a paragraph
 putpdf paragraph
-putpdf text ("Quantity Report"), bold
+putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Appraisal Period: 1"), font(Helvetica,10)
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 30 May 2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Prepared by: JC using Stata & main CR5"),  font(Helvetica,10)
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("AH"), bgcolor("pink") font(Helvetica,10)
+putpdf paragraph, halign(center)
+putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum abstot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered: `sum'")
+putpdf paragraph
+qui sum abstot_AH
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered by AH: `sum'")
+putpdf paragraph
+qui sum absper_AH
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records entered by AH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum corrtot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections: `sum'")
+putpdf paragraph
+qui sum corrtot_AH
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections for AH: `sum'")
+putpdf paragraph
+qui sum corrper_AH
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL corrections for AH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum corrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections: `sum'")
+putpdf paragraph
+qui sum corrrectot_AH
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for AH: `sum'")
+putpdf paragraph
+qui sum corrrecper_AH
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for AH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum nocorrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections: `sum'")
+putpdf paragraph
+qui sum nocorrrectot_AH
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for AH: `sum'")
+putpdf paragraph
+qui sum nocorrrecper_AH
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for AH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum accuracy_AH
+local sum : display %2.0f `r(sum)'
+putpdf text ("ACCURACY RATE for AH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf paragraph
+
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_AH.pdf", replace
+putpdf clear
+
+
+				****************************
+				*	    PDF REPORT  	   *
+				*  QUANTITY & QUALITY: KG  *
+				****************************
+
+putpdf clear
+putpdf begin
+
+//Create a paragraph
+putpdf paragraph
+putpdf text ("Quantity & Quality Report"), bold
+putpdf paragraph
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("KG"), bgcolor("pink") font(Helvetica,10)
+putpdf paragraph, halign(center)
+putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum abstot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered: `sum'")
+putpdf paragraph
+qui sum abstot_KG
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered by KG: `sum'")
+putpdf paragraph
+qui sum absper_KG
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records entered by KG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum corrtot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections: `sum'")
+putpdf paragraph
+qui sum corrtot_KG
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections for KG: `sum'")
+putpdf paragraph
+qui sum corrper_KG
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL corrections for KG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum corrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections: `sum'")
+putpdf paragraph
+qui sum corrrectot_KG
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for KG: `sum'")
+putpdf paragraph
+qui sum corrrecper_KG
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for KG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum nocorrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections: `sum'")
+putpdf paragraph
+qui sum nocorrrectot_KG
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for KG: `sum'")
+putpdf paragraph
+qui sum nocorrrecper_KG
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for KG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum accuracy_KG
+local sum : display %2.0f `r(sum)'
+putpdf text ("ACCURACY RATE for KG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf paragraph
+
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_KG.pdf", replace
+putpdf clear
+
+
+				****************************
+				*	    PDF REPORT  	   *
+				*  QUANTITY & QUALITY: NR  *
+				****************************
+
+putpdf clear
+putpdf begin
+
+//Create a paragraph
+putpdf paragraph
+putpdf text ("Quantity & Quality Report"), bold
+putpdf paragraph
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("NR"), bgcolor("pink") font(Helvetica,10)
+putpdf paragraph, halign(center)
+putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum abstot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered: `sum'")
+putpdf paragraph
+qui sum abstot_NR
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered by NR: `sum'")
+putpdf paragraph
+qui sum absper_NR
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records entered by NR: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum corrtot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections: `sum'")
+putpdf paragraph
+qui sum corrtot_NR
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections for NR: `sum'")
+putpdf paragraph
+qui sum corrper_NR
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL corrections for NR: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum corrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections: `sum'")
+putpdf paragraph
+qui sum corrrectot_NR
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for NR: `sum'")
+putpdf paragraph
+qui sum corrrecper_NR
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for NR: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum nocorrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections: `sum'")
+putpdf paragraph
+qui sum nocorrrectot_NR
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for NR: `sum'")
+putpdf paragraph
+qui sum nocorrrecper_NR
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for NR: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum accuracy_NR
+local sum : display %2.0f `r(sum)'
+putpdf text ("ACCURACY RATE for NR: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf paragraph
+
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_NR.pdf", replace
+putpdf clear
+
+
+				****************************
+				*	    PDF REPORT  	   *
+				*  QUANTITY & QUALITY: KWG *
+				****************************
+
+putpdf clear
+putpdf begin
+
+//Create a paragraph
+putpdf paragraph
+putpdf text ("Quantity & Quality Report"), bold
+putpdf paragraph
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("KWG"), bgcolor("pink") font(Helvetica,10)
 putpdf paragraph, halign(center)
 putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
 putpdf paragraph
-qui sum pttot
+qui sum abstot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Patient Table(PT): `sum'")
+putpdf text ("TOTAL records entered: `sum'")
 putpdf paragraph
-qui sum ptkwg
+qui sum abstot_KWG
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in PT by KWG: `sum'")
+putpdf text ("TOTAL records entered by KWG: `sum'")
 putpdf paragraph
-qui sum ptkwgper
+qui sum absper_KWG
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in PT by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records entered by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
 putpdf paragraph
-qui sum ptuptot
+qui sum corrtot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in Patient Table(PT): `sum'")
+putpdf text ("TOTAL corrections: `sum'")
 putpdf paragraph
-qui sum ptupkwg
+qui sum corrtot_KWG
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in PT by KWG: `sum'")
+putpdf text ("TOTAL corrections for KWG: `sum'")
 putpdf paragraph
-qui sum ptupkwgper
+qui sum corrper_KWG
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL updated in PT by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL corrections for KWG: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum tttot
+qui sum corrrectot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Tumour Table(TT): `sum'")
+putpdf text ("TOTAL records with corrections: `sum'")
 putpdf paragraph
-qui sum ttkwg
+qui sum corrrectot_KWG
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in TT by KWG: `sum'")
+putpdf text ("TOTAL records with corrections for KWG: `sum'")
 putpdf paragraph
-qui sum ttkwgper
+qui sum corrrecper_KWG
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in TT by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records with corrections for KWG: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum ttuptot
+qui sum nocorrrectot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in Tumour Table(TT): `sum'")
+putpdf text ("TOTAL records with no corrections: `sum'")
 putpdf paragraph
-qui sum ttupkwg
+qui sum nocorrrectot_KWG
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in TT by KWG: `sum'")
+putpdf text ("TOTAL records with no corrections for KWG: `sum'")
 putpdf paragraph
-qui sum ttupkwgper
+qui sum nocorrrecper_KWG
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL updated in TT by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records with no corrections for KWG: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum sttot
-local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Source Table(ST): `sum'")
-putpdf paragraph
-qui sum stkwg
-local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in ST by KWG: `sum'")
-putpdf paragraph
-qui sum stkwgper
+qui sum accuracy_KWG
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in ST by KWG: `sum'%"), bold bgcolor("yellow")
+putpdf text ("ACCURACY RATE for KWG: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "L:\BNR_data\DM\data_review\2019\cr5\versions\version01\data\clean\2019-05-30_P1_2019_quantKWG.pdf", replace
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_KWG.pdf", replace
 putpdf clear
 
 
-				***************************
-				*	    PDF REPORT  	  *
-				*	   QUANTITY: TH 	  *
-				***************************
+				****************************
+				*	    PDF REPORT  	   *
+				*  QUANTITY & QUALITY: TH  *
+				****************************
 
 putpdf clear
 putpdf begin
 
 //Create a paragraph
 putpdf paragraph
-putpdf text ("Quantity Report"), bold
+putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Appraisal Period: 1"), font(Helvetica,10)
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 30 May 2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Prepared by: JC using Stata & main CR5"),  font(Helvetica,10)
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("TH"), bgcolor("pink") font(Helvetica,10)
 putpdf paragraph, halign(center)
 putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
 putpdf paragraph
-qui sum pttot
+qui sum abstot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Patient Table(PT): `sum'")
+putpdf text ("TOTAL records entered: `sum'")
 putpdf paragraph
-qui sum ptth
+qui sum abstot_TH
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in PT by TH: `sum'")
+putpdf text ("TOTAL records entered by TH: `sum'")
 putpdf paragraph
-qui sum ptthper
+qui sum absper_TH
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in PT by TH: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records entered by TH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
 putpdf paragraph
-qui sum ptuptot
+qui sum corrtot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in Patient Table(PT): `sum'")
+putpdf text ("TOTAL corrections: `sum'")
 putpdf paragraph
-qui sum ptupth
+qui sum corrtot_TH
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in PT by TH: `sum'")
+putpdf text ("TOTAL corrections for TH: `sum'")
 putpdf paragraph
-qui sum ptupthper
+qui sum corrper_TH
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL updated in PT by TH: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL corrections for TH: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum tttot
+qui sum corrrectot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Tumour Table(TT): `sum'")
+putpdf text ("TOTAL records with corrections: `sum'")
 putpdf paragraph
-qui sum ttth
+qui sum corrrectot_TH
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in TT by TH: `sum'")
+putpdf text ("TOTAL records with corrections for TH: `sum'")
 putpdf paragraph
-qui sum ttthper
+qui sum corrrecper_TH
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in TT by TH: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records with corrections for TH: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum ttuptot
+qui sum nocorrrectot
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in Tumour Table(TT): `sum'")
+putpdf text ("TOTAL records with no corrections: `sum'")
 putpdf paragraph
-qui sum ttupth
+qui sum nocorrrectot_TH
 local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL updated in TT by TH: `sum'")
+putpdf text ("TOTAL records with no corrections for TH: `sum'")
 putpdf paragraph
-qui sum ttupthper
+qui sum nocorrrecper_TH
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL updated in TT by TH: `sum'%"), bold bgcolor("yellow")
+putpdf text ("TOTAL records with no corrections for TH: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-qui sum sttot
-local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in Source Table(ST): `sum'")
-putpdf paragraph
-qui sum stth
-local sum : display %3.0f `r(sum)'
-putpdf text ("TOTAL entered in ST by TH: `sum'")
-putpdf paragraph
-qui sum stthper
+qui sum accuracy_TH
 local sum : display %2.0f `r(sum)'
-putpdf text ("TOTAL entered in ST by TH: `sum'%"), bold bgcolor("yellow")
+putpdf text ("ACCURACY RATE for TH: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "L:\BNR_data\DM\data_review\2019\cr5\versions\version01\data\clean\2019-05-30_P1_2019_quantTH.pdf", replace
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_TH.pdf", replace
+putpdf clear
+
+
+				*************************
+				*	    PDF REPORT  	*
+				*  QUANTITY & QUALITY:  *
+                *         intern        *
+				*************************
+
+putpdf clear
+putpdf begin
+
+//Create a paragraph
+putpdf paragraph
+putpdf text ("Quantity & Quality Report"), bold
+putpdf paragraph
+putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
+putpdf paragraph
+putpdf text ("Intern"), bgcolor("pink") font(Helvetica,10)
+putpdf paragraph, halign(center)
+putpdf text ("QUANTITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum abstot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered: `sum'")
+putpdf paragraph
+qui sum abstot_intern
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records entered by intern: `sum'")
+putpdf paragraph
+qui sum absper_intern
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records entered by intern: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph, halign(center)
+putpdf text ("QUALITY"), bold font(Helvetica,20,"blue")
+putpdf paragraph
+qui sum corrtot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections: `sum'")
+putpdf paragraph
+qui sum corrtot_intern
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL corrections for intern: `sum'")
+putpdf paragraph
+qui sum corrper_intern
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL corrections for intern: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum corrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections: `sum'")
+putpdf paragraph
+qui sum corrrectot_intern
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for intern: `sum'")
+putpdf paragraph
+qui sum corrrecper_intern
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with corrections for intern: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum nocorrrectot
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections: `sum'")
+putpdf paragraph
+qui sum nocorrrectot_intern
+local sum : display %3.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for intern: `sum'")
+putpdf paragraph
+qui sum nocorrrecper_intern
+local sum : display %2.0f `r(sum)'
+putpdf text ("TOTAL records with no corrections for intern: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+qui sum accuracy_intern
+local sum : display %2.0f `r(sum)'
+putpdf text ("ACCURACY RATE for intern: `sum'%"), bold bgcolor("yellow")
+putpdf paragraph
+putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf paragraph
+
+putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_intern.pdf", replace
 putpdf clear
 
 

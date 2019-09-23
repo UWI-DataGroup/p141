@@ -864,7 +864,8 @@ replace onsettxtcod1d=4 if record_id==2964 //1 change
 count if event==1 & cod2a=="" //1
 //list record_id ddda cod2a if event==1 & cod2a==""
 replace cod2a="99" if record_id==821 //1 change
-replace corr_AH=corr_AH+1 if record_id==821 //1 change
+replace flag35=flag35+1 if record_id==821 //1 change
+//replace corr_AH=corr_AH+1 if record_id==821 //1 change
 ** (74) invalid
 count if event==1 & regexm(cod2a, "[a-z]") //3 - JC added in extra info in cod to redcap db field comment
 //list record_id ddda cod2a onsetnumcod2a onsettxtcod2a if event==1 & regexm(cod2a, "[a-z]")
@@ -1209,7 +1210,7 @@ save "`datapath'\version01\3-output\2018_deaths_cleaned_dqi_dc" ,replace
 
 
 ** REMOVE variables and labels not needed in DeathData REDCap database
-drop corr_* today birthdate flag*
+drop today birthdate flag*
 label drop _all
 
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format

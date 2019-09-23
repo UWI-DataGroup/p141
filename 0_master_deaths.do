@@ -57,15 +57,19 @@ count //3,344 (2017, 2018, 2019 deaths)
 ** Basic cleaning included checking the GA-CDRC electoral list for mismatched National ID #s (nrn)
 ** 1st dofile: to rename and format variables to match variables in DeathData REDCap database
 do "`logpath'\1_prep_deaths.do"
-** Dataset = 2018_deaths_prepped.dta
+** Dataset = 2018_deaths_prepped_dp.dta
 
 ** 2nd dofile: to clean death dataset removing invalid values and creating variables for export
 do "`logpath'\2_clean_deaths.do"
-** Dataset = 2018_deaths_cleaned.dta
+** Dataset = 2018_deaths_cleaned_dc.dta
 
 ** 3rd dofile: to export data as excel sheet in preparation for import to DeathData REDCap database
 do "`logpath'\3_export_deaths.do"
-** Dataset = 2018_deaths_exported.dta 
+** Dataset = 2018_deaths_exported_dc.dta 
+
+** 4th dofile: to create report on quality of death data per DA
+do "`logpath'\4_quality_deaths.do"
+** Dataset = 2018_deaths_report_dqi_da.dta
 
 **********************************************************
 /*

@@ -60,7 +60,7 @@ export_delimited record_id event dddoa ddda odda certtype regnum district pname 
 	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b ///
 	  pod deathparish regdate certifier certifieraddr namematch recstatdc ///
 	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt recstattf ///
-using "`datapath'\version01\3-output\2019-09-19_Cleaned_2018_DeathData_REDCap_JC.csv"
+using "`datapath'\version01\3-output\2019-09-19_Cleaned_2018_DeathData_REDCap_JC.csv", replace
 
 count //2,719
 
