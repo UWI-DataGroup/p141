@@ -3,19 +3,15 @@
     //  algorithm name          0_master_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      28-AUG-2019
-    // 	date last modified      28-AUG-2019
+    //  date first created      25-MAY-2020
+    // 	date last modified      27-MAY-2020
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note 1                  Duplicate 2017 deaths checked using 2018 dataset against 2008-2017 dataset 
-    //                          (see '2017 deaths_combined_20190828.xlsx')
-    //  note 2                  Duplicates within 2018 deaths checked and identified using conditioinal formatting and 
-    //                          field 'namematch' in 2018 dataset (see 'BNRDeathData2018_DATA_2019-08-28_1101_excel.xlsx')
-    //  note 3                  Cleaned 2018 dataset to be merged with 2008-2017 death dataset; 
+    //  objectve                To have one dataset with cleaned 2019 death data.
+    //  note                    Cleaned 2019 dataset to be imported to 2008-2020 REDCap database; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
-    Testing branching
+    
     ** General algorithm set-up
     version 16
     clear all
@@ -37,18 +33,18 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\0_master_deaths.smcl", replace
+    log using "`logpath'\0_master_deaths_2019.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version01\1-input\BNRDeathData2018_DATA_2019-09-16_1113_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version02\1-input\BNRDeathData2019_DATA_2020-05-27_1701_excel.xlsx" , firstrow case(lower)
 
-save "`datapath'\version01\2-working\2018_deaths_imported_dp" ,replace
+save "`datapath'\version02\2-working\2019_deaths_imported_dp" ,replace
 
-count //3,344 (2017, 2018, 2019 deaths)
+count //2,195
 
 ***************
 ** RUN DOFILES  

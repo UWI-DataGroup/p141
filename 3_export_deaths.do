@@ -3,16 +3,12 @@
     //  algorithm name          3_export_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      19-SEP-2019
-    // 	date last modified      19-SEP-2019
-    //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2018 database
+    //  date first created      27-MAY-2020
+    // 	date last modified      27-MAY-2020
+    //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note 1                  Duplicate 2017 deaths checked using 2018 dataset against 2008-2017 dataset 
-    //                          (see '2017 deaths_combined_20190828.xlsx')
-    //  note 2                  Duplicates within 2018 deaths checked and identified using conditioinal formatting and 
-    //                          field 'namematch' in 2018 dataset (see 'BNRDeathData2018_DATA_2019-08-28_1101_excel.xlsx')
-    //  note 3                  Cleaned 2018 dataset to be merged with 2008-2017 death dataset; 
+    //  note                    Cleaned 2019 dataset to be merged with 2008-2019 death dataset; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
     
@@ -37,34 +33,79 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\3_export_deaths.smcl", replace
+    log using "`logpath'\3_export_deaths_2019.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** LOAD DATASET  
 ***************
-use "`datapath'\version01\3-output\2018_deaths_cleaned_export_dc"
+use "`datapath'\version02\3-output\2019_deaths_cleaned_export_dc"
 
-count //3,315
+count //2,192
+
+
+***************
+** FORMATTING  
+***************
+drop event
+gen str4 regnum2 = string(regnum,"%04.0f")
+drop regnum
+rename regnum2 regnum
+replace regnum="" if regnum=="."
+rename recstatdc death_certificate_complete
+drop tfddda
+rename tfddda2 tfddda
+rename recstattf tracking_complete
+
+order record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
+	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
+	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
+	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
+	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
+	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt tracking_complete
 
 
 ***************
 ** DATA EXPORT  
 ***************
-
 sort record_id
-export_delimited record_id event dddoa ddda odda certtype regnum district pname address parish ///
-	  sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
+export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
+	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
 	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
 	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
-	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b ///
-	  pod deathparish regdate certifier certifieraddr namematch recstatdc ///
-	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt recstattf ///
-using "`datapath'\version01\3-output\2019-09-19_Cleaned_2018_DeathData_REDCap_JC.csv", replace
+	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
+	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt tracking_complete ///
+using "`datapath'\version02\3-output\2020-05-27_Cleaned_2019_DeathData_REDCap_JC_V02.csv", replace
 
-count //2,719
+**************************
+** PERFORM MANUAL UPDATES
+** TO ABOVE EXPORT
+** BEFORE IMPORT TO REDCAP
+**************************
+/*
+	(1) Right-click in the selected area of 'variable' and select 'Format cells'
+	(2)	Click 'Custom' and in the bar under 'Type:', enter the below customizations:
+		dddoa:			yyyy-mm-dd h:mm
+		ddda:			00
+		regnum:			0000
+		nrn:			0000000000
+		dod:			yyyy-mm-dd
+		regdate:		yyyy-mm-dd
+		tfdddoa:		yyyy-mm-dd h:mm
+		tfddda:			00
+		tfregnumstart:	0000
+		tfregnumend:	0000
+	(3) Check last record_id used in REDCap 2008-2020 database
+	(4) Overwrite record_id starting with next sequential number
+	(5) Add '_V02' to export file above
+*/
 
-label data "BNR MORTALITY data 2008-2018"
+
+count //2,192
+
+label data "BNR MORTALITY data 2008-2019"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
-save "`datapath'\version01\3-output\2018_deaths_exported_dc" ,replace
+save "`datapath'\version02\3-output\2019_deaths_exported_dc" ,replace
 

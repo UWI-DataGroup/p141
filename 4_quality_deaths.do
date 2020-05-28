@@ -3,8 +3,8 @@
     //  algorithm name          4_quality_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      19-SEP-2019
-    // 	date last modified      19-SEP-2019
+    //  date first created      27-MAY-2020
+    // 	date last modified      27-MAY-2020
     //  algorithm task          Report on data entry quality
     //  status                  Completed
 
@@ -30,15 +30,15 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\4_quality_deaths.smcl", replace
+    log using "`logpath'\4_quality_deaths_2019.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** LOAD DATASET  
 ***************
-use "`datapath'\version01\3-output\2018_deaths_cleaned_dqi_dc"
+use "`datapath'\version02\3-output\2019_deaths_cleaned_dqi_dc"
 
-count //2,719
+count //2,195
 
 
 *****************
@@ -141,7 +141,7 @@ gen accuracy_intern=(abstot_intern-corrtot_intern)/abstot_intern*100
 ** CREATE dataset with results to be used in pdf report
 collapse abstot* absper* corrtot* corrper* corrrectot* corrrecper* nocorrrectot* nocorrrecper* accuracy*
 format absper* corrper* corrrecper* nocorrrecper* accuracy* %9.0f
-save "`datapath'\version01\3-output\2018_deaths_dqi_da" ,replace
+save "`datapath'\version02\3-output\2019_deaths_dqi_da" ,replace
 
 
 				****************************
@@ -156,9 +156,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -220,10 +220,10 @@ qui sum accuracy_AH
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for AH: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_AH.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_AH.pdf", replace
 putpdf clear
 
 
@@ -239,9 +239,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -303,10 +303,10 @@ qui sum accuracy_KG
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for KG: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_KG.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_KG.pdf", replace
 putpdf clear
 
 
@@ -322,9 +322,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -386,10 +386,10 @@ qui sum accuracy_NR
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for NR: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_NR.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_NR.pdf", replace
 putpdf clear
 
 
@@ -405,9 +405,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -469,10 +469,10 @@ qui sum accuracy_KWG
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for KWG: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_KWG.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_KWG.pdf", replace
 putpdf clear
 
 
@@ -488,9 +488,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -552,10 +552,10 @@ qui sum accuracy_TH
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for TH: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_TH.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_TH.pdf", replace
 putpdf clear
 
 
@@ -572,9 +572,9 @@ putpdf begin
 putpdf paragraph
 putpdf text ("Quantity & Quality Report"), bold
 putpdf paragraph
-putpdf text ("Death Data: 2018"), font(Helvetica,10)
+putpdf text ("Death Data: 2019"), font(Helvetica,10)
 putpdf paragraph
-putpdf text ("Date Prepared: 23-Sep-2019"),  font(Helvetica,10)
+putpdf text ("Date Prepared: 27-May-2020"),  font(Helvetica,10)
 putpdf paragraph
 putpdf text ("Prepared by: JC using Stata & Redcap"),  font(Helvetica,10)
 putpdf paragraph
@@ -636,13 +636,13 @@ qui sum accuracy_intern
 local sum : display %2.0f `r(sum)'
 putpdf text ("ACCURACY RATE for intern: `sum'%"), bold bgcolor("yellow")
 putpdf paragraph
-putpdf image  "`datapath'\version01\2-working\accuracy rate formula.png"
+putpdf image  "`datapath'\version02\2-working\accuracy rate formula.png"
 putpdf paragraph
 
-putpdf save "`datapath'\version01\3-output\2019-09-23_quality_report_intern.pdf", replace
+putpdf save "`datapath'\version02\3-output\2020-05-27_quality_report_intern.pdf", replace
 putpdf clear
 
 
-save "`datapath'\version01\3-output\2018_deaths_report_dqi_da" ,replace
+save "`datapath'\version02\3-output\2019_deaths_report_dqi_da" ,replace
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
 label data "BNR Death Data Quality Report"

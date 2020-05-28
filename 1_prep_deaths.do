@@ -3,16 +3,12 @@
     //  algorithm name          1_prep_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      03-SEP-2019
-    // 	date last modified      05-SEP-2019
+    //  date first created      27-MAY-2020
+    // 	date last modified      27-MAY-2020
     //  algorithm task          Prep and format death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note 1                  Duplicate 2017 deaths checked using 2018 dataset against 2008-2017 dataset 
-    //                          (see '2017 deaths_combined_20190828.xlsx')
-    //  note 2                  Duplicates within 2018 deaths checked and identified using conditioinal formatting and 
-    //                          field 'namematch' in 2018 dataset (see 'BNRDeathData2018_DATA_2019-08-28_1101_excel.xlsx')
-    //  note 3                  Cleaned 2018 dataset to be merged with 2008-2017 death dataset; 
+    //  note                    Cleaned 2018 dataset to be merged with 2008-2020 death dataset; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
     
@@ -37,13 +33,13 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\1_prep_deaths.smcl", replace
+    log using "`logpath'\1_prep_deaths_2019.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ********************
 ** DATA PREPARATION  
 ********************
-use "`datapath'\version01\2-working\2018_deaths_imported_dp"
+use "`datapath'\version02\2-working\2019_deaths_imported_dp"
 
 *******************
 ** DATA FORMATTING  
@@ -62,7 +58,6 @@ label var record_id "DeathID"
 gen event=.
 replace event=1 if redcap_event_name=="death_data_collect_arm_1"
 replace event=2 if redcap_event_name=="tracking_arm_2"
-drop redcap_event_name
 
 label var event "Redcap Event Name"
 label define event_lab 1 "DC arm 1" 2 "TF arm 2", modify
@@ -156,6 +151,7 @@ format dod %tdCCYY-NN-DD
 label var dod "Date of Death"
 
 ** (22) dodyear (not included in single year Redcap db but done for multi-year Redcap db)
+drop dodyear
 gen int dodyear=year(dod)
 label var dodyear "Year of Death"
 
@@ -273,7 +269,10 @@ replace tfddda1=13 if tfddda=="kirt.gill"
 replace tfddda1=20 if tfddda=="nicolette.roachford"
 replace tfddda1=14 if tfddda=="tamisha.hunte"
 replace tfddda1=98 if tfddda=="t.g"
-drop tfddda
+replace tfddda1=98 if tfddda=="ivanna.bascombe"
+replace tfddda1=98 if tfddda=="asia.blackman"
+replace tfddda1=98 if tfddda=="ab"
+rename tfddda tfddda2
 rename tfddda1 tfddda
 
 label var tfddda "TF DA"
@@ -306,11 +305,11 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
       cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
       cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b ///
-      pod deathparish regdate certifier certifieraddr namematch recstatdc ///
+      pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt recstattf
 
-count //3,344
+count //2,195
 
-label data "BNR MORTALITY data 2018"
+label data "BNR MORTALITY data 2019"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
-save "`datapath'\version01\2-working\2018_deaths_prepped_dp" ,replace
+save "`datapath'\version02\2-working\2019_deaths_prepped_dp" ,replace
