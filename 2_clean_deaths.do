@@ -495,7 +495,7 @@ replace corr_intern=corr_intern+1 if record_id==2238|record_id==2239|record_id==
 count if event==1 & durationnum==. //0
 ** (46) invalid
 count if durationnum==999 & durationtxt!=. & durationtxt!=99 //3
-//list record_id ddda durationnum durationtxt if durationnum==999 & durationtxt!=99
+//list record_id ddda durationnum durationtxt if durationnum==999 & durationtxt!=. & durationtxt!=99
 replace flag21=flag21+1 if durationnum==999 & durationtxt!=. & durationtxt!=99 //3 changes
 replace durationtxt=99 if durationnum==999 & durationtxt!=. & durationtxt!=99 //3 changes
 count if durationnum==99 & durationtxt==99 //0
@@ -514,6 +514,8 @@ count if durationnum!=999 & durationtxt==99 //0
 //list record_id ddda durationnum durationtxt onset* if durationnum!=999 & durationtxt==99
 //replace flag22=flag22+1 if record_id==351 //1 change
 //replace durationtxt=4 if record_id==351 //1 change
+count if durationnum==999 & durationtxt==99 //62
+replace durationtxt=. if durationnum==999 & durationtxt==99 //62 changes
 
 
 ** cod1a: Text, if missing=99: FLAG 23
@@ -554,6 +556,8 @@ count if onsetnumcod1a!=999 & onsettxtcod1a==99 //1 - correct
 //list record_id ddda duration* onsetnumcod1a onsettxtcod1a onset* if onsetnumcod1a!=999 & onsettxtcod1a==99
 //replace flag25=flag25+1 if onsetnumcod1a!=999 & onsettxtcod1a==99 & record_id!=1678 //4 changes
 //replace onsettxtcod1a=2 if record_id==640
+count if onsetnumcod1a==999 & onsettxtcod1a==99 //106
+replace onsettxtcod1a=. if onsetnumcod1a==999 & onsettxtcod1a==99 //106 changes
 
 
 ** cod1b: Text, if missing=99: FLAG 26
@@ -597,6 +601,8 @@ count if onsetnumcod1b!=. & onsetnumcod1b!=999 & onsettxtcod1b==. //0
 count if onsetnumcod1b!=999 & onsettxtcod1b==99 //65 - all correct
 //list record_id ddda duration* onsetnumcod1b onsettxtcod1b if onsetnumcod1b!=999 & onsettxtcod1b==99
 //replace flag28=flag28+1 if onsetnumcod1b!=999 & onsettxtcod1b==99 & record_id!=1643 //3 changes
+count if onsetnumcod1b==999 & onsettxtcod1b==99 //64
+replace onsettxtcod1b=. if onsetnumcod1b==999 & onsettxtcod1b==99 //64 changes
 
 
 ** cod1c: Text, if missing=99: FLAG 29
@@ -639,6 +645,8 @@ count if onsetnumcod1c!=. & onsetnumcod1c!=999 & onsettxtcod1c==. //0
 count if onsetnumcod1c!=999 & onsettxtcod1c==99 //112
 //list record_id ddda duration* onsetnumcod1c onsettxtcod1c if onsetnumcod1c!=999 & onsettxtcod1c==99
 //replace flag28=flag28+1 if onsetnumcod1c!=999 & onsettxtcod1c==99 & record_id!=1570 //1 changes
+count if onsetnumcod1c==999 & onsettxtcod1c==99 //28
+replace onsettxtcod1c=. if onsetnumcod1c==999 & onsettxtcod1c==99 //28 changes
 
 
 ** cod1d: Text, if missing=99: FLAG 32
@@ -680,6 +688,8 @@ replace flag34=flag34+1 if onsetnumcod1d!=. & onsetnumcod1d!=999 & onsettxtcod1d
 count if onsetnumcod1d!=999 & onsettxtcod1d==99 //136 - all correct
 //list record_id ddda duration* onsetnumcod1d onsettxtcod1d if onsetnumcod1d!=999 & onsettxtcod1d==99
 replace corr_intern=corr_intern+1 if record_id==2532
+count if onsetnumcod1d==999 & onsettxtcod1d==99 //6
+replace onsettxtcod1d=. if onsetnumcod1d==999 & onsettxtcod1d==99 //6 changes
 
 
 ** cod2a: Text, if missing=99: FLAG 35
@@ -728,6 +738,8 @@ count if onsetnumcod2a!=. & onsetnumcod2a!=999 & onsettxtcod2a==. //0
 count if onsetnumcod2a!=999 & onsettxtcod2a==99 //93 - all correct
 //list record_id ddda duration* onsetnumcod2a onsettxtcod2a if onsetnumcod2a!=999 & onsettxtcod2a==99
 //replace flag37=flag37+1 if onsetnumcod2a!=999 & onsettxtcod2a==99 & record_id!=859 & record_id!=1599 //1 change
+count if onsetnumcod2a==999 & onsettxtcod2a==99 //44
+replace onsettxtcod2a=. if onsetnumcod2a==999 & onsettxtcod2a==99 //44 changes
 
 
 ** cod2b: Text, if missing=99: FLAG 38
@@ -772,6 +784,8 @@ replace flag40=flag40+1 if record_id==2342
 replace corr_AH=corr_AH+1 if record_id==2342 //1 change
 replace onsetnumcod2b=999 if record_id==2342 //1 change
 replace onsettxtcod2b=. if record_id==2342 //1 change
+count if onsetnumcod2b==999 & onsettxtcod2b==99 //20
+replace onsettxtcod2b=. if onsetnumcod2b==999 & onsettxtcod2b==99 //20 changes
 
 
 ** pod: Text, if missing=99: FLAG 41
@@ -824,7 +838,7 @@ count if deathparish==5 & district!=3 //0
 ** (93) St Joseph
 count if deathparish==6 & district!=6 //0
 //list record_id ddda deathparish district pod if deathparish==6 & district!=6
-** (94) St Joseph
+** (94) St Lucy
 count if deathparish==7 & district!=5 //0
 //list record_id ddda deathparish district pod if deathparish==7 & district!=5
 ** (95) St Michael

@@ -78,7 +78,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
-using "`datapath'\version03\3-output\2020-09-08_Cleaned_2019_DeathData_REDCap_JC_V01.csv", replace
+using "`datapath'\version03\3-output\2020-09-09_Cleaned_2019_DeathData_REDCap_JC_V02.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES
