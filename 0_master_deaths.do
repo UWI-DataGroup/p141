@@ -47,6 +47,9 @@ save "`datapath'\version04\2-working\2020_deaths_imported_dp" ,replace
 
 count //1401
 
+** IMPORTANT NOTE: if cleaning same year but at different times, 
+** include the previously cleaned data to this dataset so to fully identify all duplicate certificates
+
 ***************
 ** RUN DOFILES  
 ***************
