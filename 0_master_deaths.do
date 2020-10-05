@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      05-OCT-2020
-    // 	date last modified      08-SEP-2020
+    // 	date last modified      05-OCT-2020
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2019 death data.
@@ -34,18 +34,18 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\0_master_deaths_2020.smcl", replace
+    log using "`logpath'\0_master_deaths_2008-2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version04\1-input\BNRDeathData2020_DATA_2020-09-08_1712_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version05\1-input\BNRDeathData20082020_DATA_2020-10-05_1353_excel.xlsx" , firstrow case(lower)
 
-save "`datapath'\version04\2-working\2020_deaths_imported_dp" ,replace
+save "`datapath'\version05\2-working\2008-2020_deaths_imported_dp" ,replace
 
-count //1401
+count //31,471
 
 ** IMPORTANT NOTE: if cleaning same year but at different times, 
 ** include the previously cleaned data to this dataset so to fully identify all duplicate certificates
