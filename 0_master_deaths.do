@@ -3,7 +3,7 @@
     //  algorithm name          0_master_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      08-SEP-2020
+    //  date first created      05-OCT-2020
     // 	date last modified      08-SEP-2020
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
