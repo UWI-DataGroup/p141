@@ -3,13 +3,15 @@
     //  algorithm name          3_export_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      09-SEP-2020
-    // 	date last modified      09-SEP-2020
+    //  date first created      05-OCT-2020
+    // 	date last modified      05-OCT-2020
     //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note                    Cleaned 2019 dataset to be merged with 2008-2019 death dataset; 
-    //                          Redcap database with ALL cleaned deaths to be created.
+    //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
+    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
+    //                          so decision made to re-clean this dataset.
+    //                          To re-build REDCap database with ALL cleaned deaths.
 
     
     ** General algorithm set-up
@@ -33,37 +35,15 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\3_export_deaths_2020.smcl", replace
+    log using "`logpath'\3_export_deaths_2008-2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** LOAD DATASET  
 ***************
-use "`datapath'\version04\3-output\2020_deaths_cleaned_export_dc"
+use "`datapath'\version05\3-output\2008-2020_deaths_cleaned_export_dc"
 
-count //984
-
-
-***************
-** FORMATTING  
-***************
-drop event
-gen str4 regnum2 = string(regnum,"%04.0f")
-drop regnum
-rename regnum2 regnum
-replace regnum="" if regnum=="."
-rename recstatdc death_certificate_complete
-drop tfddda
-rename tfddda2 tfddda
-rename recstattf tracking_complete
-
-order record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
-	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
-	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
-	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
-	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
-	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
-	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt tracking_complete
+count //31,179
 
 
 ***************
@@ -78,7 +58,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
-using "`datapath'\version04\3-output\2020-09-09_Cleaned_2020_DeathData_REDCap_JC_V01.csv", replace
+using "`datapath'\version05\3-output\2020-10-05_Cleaned_2008-2020_DeathData_REDCap_JC_V01.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES
@@ -106,9 +86,9 @@ using "`datapath'\version04\3-output\2020-09-09_Cleaned_2020_DeathData_REDCap_JC
 */
 
 
-count //1388
+count //31,179
 
-label data "BNR MORTALITY data 2020"
+label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
-save "`datapath'\version04\3-output\2020_deaths_exported_dc" ,replace
+save "`datapath'\version05\3-output\2008-2020_deaths_exported_dc" ,replace
 

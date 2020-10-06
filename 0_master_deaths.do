@@ -7,10 +7,11 @@
     // 	date last modified      05-OCT-2020
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2019 death data.
-    //  note                    Cleaned 2019 dataset to be imported to 2008-2020 REDCap database; 
-    //                          Redcap database with ALL cleaned deaths to be created.
-    //                          (record_id 1 to 2196 done in May2020; Now doing remainder of 2019)
+    //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
+    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
+    //                          so decision made to re-clean this dataset.
+    //                          To re-build REDCap database with ALL cleaned deaths.
 
     
     ** General algorithm set-up

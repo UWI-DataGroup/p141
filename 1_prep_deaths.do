@@ -3,13 +3,15 @@
     //  algorithm name          1_prep_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      07-SEP-2020
-    // 	date last modified      07-SEP-2020
+    //  date first created      05-OCT-2020
+    // 	date last modified      05-OCT-2020
     //  algorithm task          Prep and format death data
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note                    Cleaned 2018 dataset to be merged with 2008-2020 death dataset; 
-    //                          Redcap database with ALL cleaned deaths to be created.
+    //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
+    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
+    //                          so decision made to re-clean this dataset.
+    //                          To re-build REDCap database with ALL cleaned deaths.
 
     
     ** General algorithm set-up
@@ -33,13 +35,15 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\1_prep_deaths_2020.smcl", replace
+    log using "`logpath'\1_prep_deaths_2008-2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ********************
 ** DATA PREPARATION  
 ********************
-use "`datapath'\version04\2-working\2020_deaths_imported_dp"
+use "`datapath'\version05\2-working\2008-2020_deaths_imported_dp"
+
+count //31,471
 
 *******************
 ** DATA FORMATTING  
@@ -262,47 +266,24 @@ label values recstatdc recstatdc_lab
 *******************
 
 ** (48) tfdddoa: Y-M-D H:M, readonly
-replace tfdddoa=subinstr(tfdddoa," 13:32","",.) if record_id==41 //1 change
-replace tfdddoa=subinstr(tfdddoa," 12:16","",.) if record_id==82 //1 change
-replace tfdddoa=subinstr(tfdddoa," 12:11","",.) if record_id==124 //1 change
-replace tfdddoa=subinstr(tfdddoa," 12:16","",.) if record_id==165 //1 change
-replace tfdddoa=subinstr(tfdddoa," 14:55","",.) if record_id==210 //1 change
-replace tfdddoa=subinstr(tfdddoa," 12:59","",.) if record_id==253 //1 change
-replace tfdddoa=subinstr(tfdddoa," 13:36","",.) if record_id==340 //1 change
-replace tfdddoa=subinstr(tfdddoa," 09:24","",.) if record_id==341 //1 change
-replace tfdddoa=subinstr(tfdddoa," 13:24","",.) if record_id==382 //1 change
-replace tfdddoa=subinstr(tfdddoa," 13:05","",.) if record_id==430 //1 change
-replace tfdddoa=subinstr(tfdddoa," 09:19","",.) if record_id==483 //1 change
-replace tfdddoa=subinstr(tfdddoa," 13:19","",.) if record_id==524 //1 change
-replace tfdddoa=subinstr(tfdddoa," 13:40","",.) if record_id==568 //1 change
-replace tfdddoa=subinstr(tfdddoa," 14:20","",.) if record_id==2293 //1 change
-replace tfdddoa=subinstr(tfdddoa," 16:16","",.) if record_id==2312 //1 change
-replace tfdddoa=subinstr(tfdddoa," 08:57","",.) if record_id==2313 //1 change
-replace tfdddoa=subinstr(tfdddoa," 14:10","",.) if record_id==2314 //1 change
-replace tfdddoa=subinstr(tfdddoa," 15:21","",.) if record_id==2315 //1 change
-replace tfdddoa="6/11/2020" if record_id==41 //1 change
-replace tfdddoa="6/11/2020" if record_id==82 //1 change
-replace tfdddoa="6/12/2020" if record_id==124 //1 change
-replace tfdddoa="6/11/2020" if record_id==165 //1 change
-replace tfdddoa="6/12/2020" if record_id==210 //1 change
-replace tfdddoa="6/15/2020" if record_id==253 //1 change
-replace tfdddoa="6/16/2020" if record_id==340 //1 change
-replace tfdddoa="6/17/2020" if record_id==341 //1 change
-replace tfdddoa="6/17/2020" if record_id==382 //1 change
-replace tfdddoa="6/17/2020" if record_id==430 //1 change
-replace tfdddoa="6/19/2020" if record_id==483 //1 change
-replace tfdddoa="6/19/2020" if record_id==524 //1 change
-replace tfdddoa="6/19/2020" if record_id==568 //1 change
-replace tfdddoa="6/22/2020" if record_id==2293 //1 change
-replace tfdddoa="6/22/2020" if record_id==2312 //1 change
-replace tfdddoa="6/18/2020" if record_id==2313 //1 change
-replace tfdddoa="6/18/2020" if record_id==2314 //1 change
-replace tfdddoa="6/20/2020" if record_id==2315 //1 change
+** split date and time into parts
+split tfdddoa, parse(" ") gen (t_) destring
+gen tfdddoatstart2 = clock(t_2, "hm")
+format tfdddoatstart2 %tchH:MM
+replace tfdddoatstart=tfdddoatstart2 if tfdddoatstart2!=. //126 changes
+
 replace tfdddoa = rtrim(ltrim(itrim(tfdddoa))) //30 changes
 generate tfdddoa2=date(tfdddoa,"MDY")
 format tfdddoa2 %tdYYYY-NN-DD
+
+replace tfdddoa = "" if tfdddoa2!=. //86 changes
+gen tfdddoa3=date(t_1, "YMD")
+format tfdddoa3 %tdCCYY-NN-DD
+
+replace tfdddoa3 = tfdddoa2 if tfdddoa3==. & tfdddoa2!=. //86 changes
 drop tfdddoa
-rename tfdddoa2 tfdddoa
+rename tfdddoa3 tfdddoa
+
 label var tfdddoa "TF Date-Start"
 
 ** (49) tfdddoatstart: HH:MM
@@ -374,8 +355,8 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //1401
+count //31,471
 
-label data "BNR MORTALITY data 2020"
+label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
-save "`datapath'\version04\2-working\2020_deaths_prepped_dp" ,replace
+save "`datapath'\version05\2-working\2008-2020_deaths_prepped_dp" ,replace
