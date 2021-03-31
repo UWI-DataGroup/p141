@@ -174,8 +174,16 @@ gen accuracy_KG=(abstot_KG-corrtot_KG)/abstot_KG*100
 gen accuracy_TH=(abstot_TH-corrtot_TH)/abstot_TH*100
 gen accuracy_intern=(abstot_intern-corrtot_intern)/abstot_intern*100
 
+** error rate
+gen errorrate_AH=corrtot_AH/abstot_AH
+gen errorrate_KG=corrtot_KG/abstot_KG
+//gen errorrate_NR=corrtot_NR/abstot_NR
+//gen errorrate_KWG=corrtot_KWG/abstot_KWG
+gen errorrate_TH=corrtot_TH/abstot_TH
+gen errorrate_intern=corrtot_intern/abstot_intern
+
 ** CREATE dataset with results to be used in pdf report
-collapse abstot* absper* time* corrtot* corrper* corrrectot* corrrecper* nocorrrectot* nocorrrecper* accuracy*
+collapse abstot* absper* time* corrtot* corrper* corrrectot* corrrecper* nocorrrectot* nocorrrecper* accuracy* errorrate*
 gen recid=1
 merge 1:1 recid using "`datapath'\version04\2-working\2020_deaths_dqi_da_timing"
 format absper* corrper* corrrecper* nocorrrecper* accuracy* abstiming* %9.0f
