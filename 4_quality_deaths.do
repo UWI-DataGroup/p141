@@ -857,7 +857,7 @@ putpdf paragraph
 
 putpdf save "`datapath'\version04\3-output\2021-03-31_quality_report_AH.pdf", replace
 putpdf clear
-stop
+
 
 				****************************
 				*	    PDF REPORT  	   *
