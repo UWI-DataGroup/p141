@@ -3,12 +3,12 @@
     //  algorithm name          1_prep_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      27-MAY-2020
-    // 	date last modified      27-MAY-2020
+    //  date first created      15-JULY-2021
+    // 	date last modified      15-JULY-2021
     //  algorithm task          Prep and format death data
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2018 death data.
-    //  note                    Cleaned 2018 dataset to be merged with 2008-2020 death dataset; 
+    //  objectve                To have one dataset with cleaned 2020 death data.
+    //  note                    Cleaned 2020 dataset to be merged with 2008-2020 death dataset; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
     
@@ -33,13 +33,14 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\1_prep_deaths_2019.smcl", replace
+    log using "`logpath'\1_prep_deaths_2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ********************
 ** DATA PREPARATION  
 ********************
-use "`datapath'\version02\2-working\2019_deaths_imported_dp"
+use "`datapath'\version06\2-working\2020_deaths_imported_dp"
+
 
 *******************
 ** DATA FORMATTING  
@@ -64,7 +65,10 @@ label define event_lab 1 "DC arm 1" 2 "TF arm 2", modify
 label values event event_lab
 
 ** (3) dddoa: Y-M-D H:M, readonly
-format dddoa %tcCCYY-NN-DD_HH:MM:SS
+gen double dddoa2 = clock(dddoa, "YMDhm")
+format dddoa2 %tcCCYY-NN-DD_HH:MM
+drop dddoa
+rename dddoa2 dddoa
 label var dddoa "ABS DateTime"
 
 ** (4) ddda
@@ -124,6 +128,8 @@ label define agetxt_lab 1 "Minutes" 2 "Hours" 3 "Days" 4 "Weeks" 5 "Months" 6 "Y
 label values agetxt agetxt_lab
 
 ** (15) nrnnd: 1=Yes 2=No
+label define nrnnd_lab 1 "Yes" 2 "No", modify
+label values nrnnd nrnnd_lab
 label var nrnnd "Is National ID # documented?"
 
 ** (16) nrn: dob-####, partial missing=dob-9999, if missing=.
@@ -257,21 +263,68 @@ label values recstatdc recstatdc_lab
 *******************
 
 ** (48) tfdddoa: Y-M-D H:M, readonly
-format tfdddoa %tcCCYY-NN-DD_HH:MM:SS
-label var tfdddoa "TF DateTime"
+replace tfdddoa=subinstr(tfdddoa," 13:32","",.) if record_id==41 //1 change
+replace tfdddoa=subinstr(tfdddoa," 12:16","",.) if record_id==82 //1 change
+replace tfdddoa=subinstr(tfdddoa," 12:11","",.) if record_id==124 //1 change
+replace tfdddoa=subinstr(tfdddoa," 12:16","",.) if record_id==165 //1 change
+replace tfdddoa=subinstr(tfdddoa," 14:55","",.) if record_id==210 //1 change
+replace tfdddoa=subinstr(tfdddoa," 12:59","",.) if record_id==253 //1 change
+replace tfdddoa=subinstr(tfdddoa," 13:36","",.) if record_id==340 //1 change
+replace tfdddoa=subinstr(tfdddoa," 09:24","",.) if record_id==341 //1 change
+replace tfdddoa=subinstr(tfdddoa," 13:24","",.) if record_id==382 //1 change
+replace tfdddoa=subinstr(tfdddoa," 13:05","",.) if record_id==430 //1 change
+replace tfdddoa=subinstr(tfdddoa," 09:19","",.) if record_id==483 //1 change
+replace tfdddoa=subinstr(tfdddoa," 13:19","",.) if record_id==524 //1 change
+replace tfdddoa=subinstr(tfdddoa," 13:40","",.) if record_id==568 //1 change
+replace tfdddoa=subinstr(tfdddoa," 14:20","",.) if record_id==2293 //1 change
+replace tfdddoa=subinstr(tfdddoa," 16:16","",.) if record_id==2312 //1 change
+replace tfdddoa=subinstr(tfdddoa," 08:57","",.) if record_id==2313 //1 change
+replace tfdddoa=subinstr(tfdddoa," 14:10","",.) if record_id==2314 //1 change
+replace tfdddoa=subinstr(tfdddoa," 15:21","",.) if record_id==2315 //1 change
+replace tfdddoa="6/11/2020" if record_id==41 //1 change
+replace tfdddoa="6/11/2020" if record_id==82 //1 change
+replace tfdddoa="6/12/2020" if record_id==124 //1 change
+replace tfdddoa="6/11/2020" if record_id==165 //1 change
+replace tfdddoa="6/12/2020" if record_id==210 //1 change
+replace tfdddoa="6/15/2020" if record_id==253 //1 change
+replace tfdddoa="6/16/2020" if record_id==340 //1 change
+replace tfdddoa="6/17/2020" if record_id==341 //1 change
+replace tfdddoa="6/17/2020" if record_id==382 //1 change
+replace tfdddoa="6/17/2020" if record_id==430 //1 change
+replace tfdddoa="6/19/2020" if record_id==483 //1 change
+replace tfdddoa="6/19/2020" if record_id==524 //1 change
+replace tfdddoa="6/19/2020" if record_id==568 //1 change
+replace tfdddoa="6/22/2020" if record_id==2293 //1 change
+replace tfdddoa="6/22/2020" if record_id==2312 //1 change
+replace tfdddoa="6/18/2020" if record_id==2313 //1 change
+replace tfdddoa="6/18/2020" if record_id==2314 //1 change
+replace tfdddoa="6/20/2020" if record_id==2315 //1 change
+replace tfdddoa = rtrim(ltrim(itrim(tfdddoa))) //30 changes
+generate tfdddoa2=date(tfdddoa,"MDY")
+format tfdddoa2 %tdYYYY-NN-DD
+drop tfdddoa
+rename tfdddoa2 tfdddoa
+label var tfdddoa "TF Date-Start"
 
-** (49) tfddda: readonly, user logged into redcap
+** (49) tfdddoatstart: HH:MM
+format tfdddoatstart %tcHH:MM
+label var tfdddoatstart "TF Time-Start"
+
+** (50) tfddda: readonly, user logged into redcap
 gen tfddda1=.
 replace tfddda1=25 if tfddda=="ashley.henry" //using codebook tfddda to see all possible entries in this field
 replace tfddda1=25 if tfddda=="ashleyhenry"
 replace tfddda1=4 if tfddda=="karen.greene"
+replace tfddda1=4 if tfddda=="kg"
 replace tfddda1=13 if tfddda=="kirt.gill"
 replace tfddda1=20 if tfddda=="nicolette.roachford"
 replace tfddda1=14 if tfddda=="tamisha.hunte"
 replace tfddda1=98 if tfddda=="t.g"
 replace tfddda1=98 if tfddda=="ivanna.bascombe"
+replace tfddda1=98 if tfddda=="ib"
 replace tfddda1=98 if tfddda=="asia.blackman"
 replace tfddda1=98 if tfddda=="ab"
+replace tfddda1=98 if tfddda=="shay.morrisdoty"
 rename tfddda tfddda2
 rename tfddda1 tfddda
 
@@ -279,26 +332,44 @@ label var tfddda "TF DA"
 label define tfddda_lab 4 "KG" 13 "KWG" 14 "TH" 20 "NR" 25 "AH" 98 "intern", modify
 label values tfddda tfddda_lab
 
-** (50) tfregnumstart: integer
+** (51) tfregnumstart: integer
 label var tfregnumstart "Registry #-Start"
 
-** (51) tfdistrictstart: letters only
+** (52) tfdistrictstart: letters only
 label var tfdistrictstart "District-Start"
 
-** (52) tfregnumend: integer
+** (53) tfregnumend: integer
 label var tfregnumend "Registry #-End"
 
-** (53) tfdistrictend: letters only
+** (54) tfdistrictend: letters only
 label var tfdistrictend "District-End"
 
-** (53) tfddtxt
+** (55) tfdddoaend: Y-M-D
+format tfdddoaend %tdCCYY-NN-DD
+label var tfdddoaend "TF Date-End"
+
+** (56) tfdddoatend: HH:MM
+format tfdddoatend %tcHH:MM
+label var tfdddoatend "TF Time-End"
+
+** (57) tfddelapsedh: integer (imported to Stata as byte)
+recast int tfddelapsedh
+label var tfddelapsedh "Time Elpased (hrs)"
+
+** (58) tfddelapsedm: integer
+label var tfddelapsedm "Time Elpased (mins)"
+
+** (59) tfddtxt
 label var tfddtxt "TF Comments"
 
-** (54) tracking_complete (auto-generated by REDCap): 0=Incomplete 1=Unverified 2=Complete
+** (60) tracking_complete (auto-generated by REDCap): 0=Incomplete 1=Unverified 2=Complete
 rename tracking_complete recstattf
 label var recstattf "Record Status-TF Form"
 label define recstattf_lab 0 "Incomplete" 1 "Unverified" 2 "Complete", modify
 label values recstattf recstattf_lab
+drop if recstattf==0 & record_id!=2739 //2 deleted
+
+//drop tfddda2 - don't remove as this will be used in 2_clean_deaths.do
 
 order record_id event dddoa ddda odda certtype regnum district pname address parish sex ///
       age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
@@ -306,10 +377,10 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
       cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b ///
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
-      tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt recstattf
+      tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //2,195
+count //2695
 
-label data "BNR MORTALITY data 2019"
+label data "BNR MORTALITY data 2020"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
-save "`datapath'\version02\2-working\2019_deaths_prepped_dp" ,replace
+save "`datapath'\version06\2-working\2020_deaths_prepped_dp" ,replace
