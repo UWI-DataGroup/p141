@@ -3,12 +3,12 @@
     //  algorithm name          0_master_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      25-MAY-2020
-    // 	date last modified      27-MAY-2020
+    //  date first created      15-JULY-2021
+    // 	date last modified      15-JULY-2021
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2019 death data.
-    //  note                    Cleaned 2019 dataset to be imported to 2008-2020 REDCap database; 
+    //  objectve                To have one dataset with cleaned 2020 death data.
+    //  note                    Cleaned 2020 dataset to be imported to 2008-2020 REDCap database; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
     
@@ -33,18 +33,18 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\0_master_deaths_2019.smcl", replace
+    log using "`logpath'\0_master_deaths_2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version02\1-input\BNRDeathData2019_DATA_2020-05-27_1701_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version06\1-input\BNRDeathData2020_DATA_2021-07-15_1221_excel.xlsx" , firstrow case(lower)
 
-save "`datapath'\version02\2-working\2019_deaths_imported_dp" ,replace
+save "`datapath'\version06\2-working\2020_deaths_imported_dp" ,replace
 
-count //2,195
+count //2,697
 
 ***************
 ** RUN DOFILES  
