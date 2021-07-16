@@ -3,12 +3,12 @@
     //  algorithm name          2_clean_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      05-OCT-2020
-    //  date last modified      05-OCT-2020
+    //  date first created      15-JUL-2021
+    //  date last modified      15-JUL-2021
     //  algorithm task          Clean death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
-    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //  note                    After 2020 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
     //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
     //                          so decision made to re-clean this dataset.
     //                          To re-build REDCap database with ALL cleaned deaths.
@@ -38,12 +38,77 @@
     log using "`logpath'\2_clean_deaths_2008-2020.smcl", replace
 ** HEADER -----------------------------------------------------
 
+
+***************
+** PREP DATASET  
+***************
+** Prep 2020 deaths dataset for inclusion to 2008-2020 dataset
+use "`datapath'\version05\1-input\2020_deaths_cleaned_dqi_dc"
+sort record_id
+gen record_id2=record_id
+replace record_id=.
+gen natregno2=nrn
+destring nrn ,replace //need to do this for the dataset to append
+
+sort record_id2
+
+save "`datapath'\version05\2-working\2020_deaths_append_dp" ,replace
+clear
+
+
 ***************
 ** LOAD DATASET  
 ***************
+** Load 2008-2020 dataset
 use "`datapath'\version05\2-working\2008-2020_deaths_prepped_dp"
 
-count //31,471
+count //31,163
+
+tab dodyear ,m //213 missing are TF records
+//list record_id dod event if dodyear==.
+//1,341 = 2020 deaths
+
+** Remove previously cleaned 2020 deaths from 2020 Pt.1 cleaning process
+drop if dodyear==2020 //1341 deleted
+count //29,822
+
+
+** Append full 2020 cleaned deaths and tracking records
+append using "`datapath'\version05\2-working\2020_deaths_append_dp" ,force
+count //32,512
+
+
+** Check for duplicate TF records and remove using tfdddoa and regnumstart
+gen tfdddoa2=tfdddoa
+format tfdddoa2 %tdCCYY-NN-DD
+tostring tfdddoa2 ,replace
+
+gen tfregnumstart2=tfregnumstart
+tostring tfregnumstart2 ,replace
+
+sort tfregnumstart2 tfdddoa2 record_id
+quietly by tfregnumstart2 tfdddoa2 : gen duprgdoa = cond(_N==1,0,_n)
+sort tfregnumstart2 tfdddoa2 record_id
+count if event==2 & duprgdoa>0 //152
+//list record_id tfddda tfdddoa tfregnumstart tfdistrictstart record_id2 if event==2 & duprgdoa>0
+count if event==2 & duprgdoa>0 & record_id2!=. //46 - these are the ones from the current 2020 deaths dataset
+//list record_id tfddda tfdddoa tfregnumstart tfdistrictstart if event==2 & duprgdoa>0 & record_id2!=.
+drop if event==2 & duprgdoa>0 & record_id2!=. //46 deleted
+drop tfregnumstart2 tfdddoa2 duprgdoa
+
+count //32,466
+
+
+** Sequentially add record_id to 2020 deaths using last record_id in 2008-2020 dataset
+sort record_id record_id2
+
+summarize record_id
+display r(max) //31475
+display _N //32,466
+//checking last record_id and total number of records as an FYI
+
+replace record_id = record_id[_n-1] + 1 if missing(record_id) 
+
 
 
 *****************
@@ -84,9 +149,9 @@ count if event==1 & (ddda!=4 & ddda!=13 & ddda!=14 & ddda!=20 & ddda!=25 & ddda!
 count if ddda==98 & odda=="" //0
 //list record_id event dddoa ddda odda if ddda==98 & odda==""
 ** (6) invalid
-count if ddda!=98 & odda!="" //949
+count if ddda!=98 & odda!="" //0
 //list record_id event dddoa ddda odda if ddda!=98 & odda!=""
-replace odda="" if ddda!=98 & odda!="" //949 changes
+replace odda="" if ddda!=98 & odda!="" //0 changes
 
 
 ** certtype: 1=MEDICAL 2=POST MORTEM 3=CORONER 99=ND, required: FLAG 6
@@ -102,74 +167,20 @@ count if event==1 & regnum==.|event==1 & regnum==0 //0
 ** (9) invalid
 count if event==1 & regnum>9999 //0
 ** (9) duplicate
+gen dodyear2=dodyear
+tostring dodyear2 ,replace
+
+sort regnum district dodyear2
+quietly by regnum district dodyear2:  gen dupreg = cond(_N==1,0,_n)
+sort regnum district dodyear2
+count if event==1 & dupreg>0  //2,105 - not duplicates as same regnum + district are repeatedly used by Reg.Dept. even within the same year
 sort regnum district
-quietly by regnum district:  gen dupreg = cond(_N==1,0,_n)
-sort regnum district
-count if event==1 & dupreg>0  //33,016 - many are not duplicates as same regnum + district are repeatedly used but 2019 had some which I've removed below
-sort pname record_id
+order record_id pname regnum district dodyear2 dod
 //list record_id dddoa ddda odda pname regnum district nrn recstatdc if event==1 & dupreg>0
 
 ** Remove duplicates
-drop if record_id==29542|record_id==29354|record_id==29355|record_id==29544|record_id==29356| ///
-record_id==29545|record_id==29357|record_id==29546|record_id==29358|record_id==29547| ///
-record_id==29359|record_id==29360|record_id==29362|record_id==29363|record_id==29364| ///
-record_id==29366|record_id==29367|record_id==29368|record_id==29369|record_id==29370| ///
-record_id==29101|record_id==29104|record_id==29105|record_id==29106|record_id==29107| ///
-record_id==29109|record_id==29110|record_id==29111|record_id==29112|record_id==29113| ///
-record_id==29114|record_id==29115|record_id==29116|record_id==29117|record_id==29118| ///
-record_id==29119|record_id==29121|record_id==29122|record_id==29123|record_id==29125| ///
-record_id==29126|record_id==29127|record_id==29128|record_id==29129|record_id==29130| ///
-record_id==29131|record_id==29133|record_id==29134|record_id==29135|record_id==29136| ///
-record_id==29137|record_id==29139|record_id==29171|record_id==29172|record_id==29173| ///
-record_id==29174|record_id==29175|record_id==29176|record_id==29177|record_id==29178| ///
-record_id==29180|record_id==29181|record_id==29182|record_id==29183|record_id==29185| ///
-record_id==29186|record_id==29187|record_id==29188|record_id==29189|record_id==29190| ///
-record_id==29191|record_id==29192|record_id==29193|record_id==29194|record_id==29196| ///
-record_id==29197|record_id==29198|record_id==29199|record_id==29200|record_id==29201| ///
-record_id==29202|record_id==29203|record_id==29204|record_id==29205|record_id==29206| ///
-record_id==29207|record_id==29208|record_id==29210|record_id==29261|record_id==29262| ///
-record_id==29263|record_id==29264|record_id==29265|record_id==29266|record_id==29267| ///
-record_id==29268|record_id==29269|record_id==29270|record_id==29271|record_id==29272| ///
-record_id==29273|record_id==29274|record_id==29275|record_id==29278|record_id==29279| ///
-record_id==29209|record_id==29212|record_id==29213|record_id==29214|record_id==29215| ///
-record_id==29216|record_id==29217|record_id==29218|record_id==29219|record_id==29220| ///
-record_id==29221|record_id==29222|record_id==29224|record_id==29226|record_id==29227| ///
-record_id==29228|record_id==29229|record_id==29230|record_id==29231|record_id==29233| ///
-record_id==29235|record_id==29237|record_id==29238|record_id==29239|record_id==29240| ///
-record_id==29241|record_id==29242|record_id==29243|record_id==29244|record_id==29245| ///
-record_id==29246|record_id==29247|record_id==29248|record_id==29249|record_id==29250| ///
-record_id==29251|record_id==29252|record_id==29254|record_id==29255|record_id==29256| ///
-record_id==29257|record_id==29258|record_id==29259|record_id==29280|record_id==29281| ///
-record_id==29282|record_id==29283|record_id==29284|record_id==29285|record_id==29287| ///
-record_id==29288|record_id==29289|record_id==29374|record_id==29375|record_id==29376| ///
-record_id==29377|record_id==29378|record_id==29379|record_id==29380|record_id==29384| ///
-record_id==29386|record_id==29389|record_id==29390|record_id==29392|record_id==29394| ///
-record_id==29396|record_id==28423|record_id==29400|record_id==29402|record_id==29403| ///
-record_id==29405|record_id==29407|record_id==29408|record_id==29410|record_id==29411| ///
-record_id==29413|record_id==29382|record_id==29387|record_id==29391|record_id==29393| ///
-record_id==29395|record_id==29397|record_id==29399|record_id==29401|record_id==29404| ///
-record_id==29409|record_id==29412|record_id==29414|record_id==28461|record_id==29416| ///
-record_id==29417|record_id==29418|record_id==29419|record_id==29420|record_id==29421| ///
-record_id==29422|record_id==29423|record_id==29425|record_id==29426|record_id==29427| ///
-record_id==29428|record_id==29429|record_id==29430|record_id==29431|record_id==29432| ///
-record_id==29433|record_id==29434|record_id==29435|record_id==29436|record_id==29437| ///
-record_id==29438|record_id==29439|record_id==29629|record_id==29630|record_id==29634| ///
-record_id==29636|record_id==29637|record_id==29638|record_id==29640|record_id==29644| ///
-record_id==29651|record_id==29652|record_id==29655|record_id==29657|record_id==29658| ///
-record_id==29661|record_id==29663|record_id==29665|record_id==29666|record_id==29669| ///
-record_id==29670|record_id==29672|record_id==29673|record_id==29674|record_id==29675| ///
-record_id==29677|record_id==29678|record_id==29680|record_id==29681|record_id==29683| ///
-record_id==29685|record_id==29686|record_id==29687|record_id==29688|record_id==29689| ///
-record_id==29690|record_id==29691|record_id==29692|record_id==29724|record_id==29725| ///
-record_id==29726|record_id==29727|record_id==29728|record_id==29729|record_id==29730| ///
-record_id==29731|record_id==29543|record_id==29361|record_id==27239|record_id==29102| ///
-record_id==29103|record_id==29120|record_id==29124|record_id==29132|record_id==29138| ///
-record_id==29140|record_id==28250|record_id==28255|record_id==29195|record_id==29276| ///
-record_id==29277|record_id==29225|record_id==29232|record_id==28324|record_id==29236| ///
-record_id==28343|record_id==28356|record_id==29383|record_id==28369|record_id==29381| ///
-record_id==29388|record_id==29424|record_id==29635|record_id==29641|record_id==29646| ///
-record_id==29648 //290 deleted
-drop dupreg
+//drop if record_id== //290 deleted
+drop dupreg dodyear2
 
 
 ** district: 1=A 2=B 3=C 4=D 5=E 6=F: FLAG 8
@@ -184,41 +195,41 @@ count if event==1 & pname=="" //0
 count if event==1 & regexm(pname, "[a-z]") //0
 //list record_id event ddda odda pname if event==1 & regexm(pname, "[a-z]")
 replace pname=upper(pname) //0 changes
-count if event==1 & regexm(pname,"NIL")|event==1 & regexm(pname,"ND") //2588 - all correct
+count if event==1 & regexm(pname,"NIL")|event==1 & regexm(pname,"ND") //2706 - all correct
 //list record_id ddda odda pname if event==1 & regexm(pname,"NIL")|event==1 & regexm(pname,"ND")
 ** (13) duplicate
 sort pname
 quietly by pname:  gen dup = cond(_N==1,0,_n)
 sort pname
-count if event==1 & dup>0  //2,984 - many are not duplicates but 2019 had a few which I've removed below
+count if event==1 & dup>0  //3,190 - many are not duplicates but 2019 had a few which I've removed below
 sort pname record_id
+order record_id pname regnum district dodyear dod namematch
 //list record_id dddoa ddda odda pname regnum district nrn if event==1 & dup>0
-replace namematch=1 if record_id==28465|record_id==28433|record_id==29460|record_id==27488|record_id==29943 ///
-					   |record_id==29018|record_id==29533|record_id==28397|record_id==29791|record_id==28804 ///
-					   |record_id==29990|record_id==27960|record_id==29799|record_id==27280|record_id==29151 ///
-					   |record_id==28457|record_id==29922|record_id==27428|record_id==29578 //19 changes
-drop if record_id==29406|record_id==29223 //2 deleted
+replace namematch=1 if event==1 & dup>0 & namematch!=1 //371
+drop if record_id==27730 //1 deleted
 //drop if event==1 & dup>0 & namematch==. // deleted
 drop dup
 
 
 ** address: Text, if missing=99: FLAG 10
 ** (14) missing
-count if event==1 & address=="" //44
-replace address="99" if event==1 & address=="" //4 changes
+count if event==1 & address=="" //0
+replace address="99" if event==1 & address=="" //0 changes
 ** (15) invalid 
 count if event==1 & regexm(address, "[a-z]") //0
 //list record_id event ddda odda address if event==1 & regexm(address, "[a-z]")
 replace address=upper(address) //0 changes
-count if event==1 & regexm(address,"NIL")|event==1 & regexm(address,"ND") //5,525 - all correct
-count if event==1 & regexm(address," ND") //150
-count if event==1 & regexm(address," ND ") //110
-count if event==1 & regexm(address," ND") & !(strmatch(strupper(address), "*2 ND*")) //143
+count if event==1 & regexm(address,"NIL")|event==1 & regexm(address,"ND") //5,604 - all correct
+count if event==1 & regexm(address," ND") //7
+count if event==1 & regexm(address," ND ") //7
+count if event==1 & regexm(address," ND") & !(strmatch(strupper(address), "*2 ND*")) //0
 //list record_id ddda odda address if event==1 & regexm(address,"NIL")|event==1 & regexm(address,"ND")
 replace address=subinstr(address," ND","",.) if event==1 & regexm(address," ND") & !(strmatch(strupper(address), "*2 ND*")) //143 changes
-count if length(address)<4 //292
-count if address=="ND" //19
-replace address="99" if address=="ND" //19 changes
+count if length(address)<4 & address!="99" //266
+replace address="99" if address=="69" //1 change
+count if length(address)<4 & address!="99" & address!="" //10 - all correct
+count if address=="ND" //0
+replace address="99" if address=="ND" //0 changes
 
 
 ** parish: FLAG 11
@@ -236,7 +247,7 @@ count if sex==2 & (regexm(cod1a, "PROSTAT")|regexm(cod1b, "PROSTAT")|regexm(cod1
 //list record_id ddda pname nrn sex cod* if (regexm(cod1a, "PROSTAT")|regexm(cod1b, "PROSTAT")|regexm(cod1c, "PROSTAT")|regexm(cod1d, "PROSTAT")|regexm(cod2a, "PROSTAT")|regexm(cod2b, "PROSTAT")) & sex==2
 //recode sex 2=1 if record_id==1634 //1 change
 ** (19) visual check - first names for those missing nrn
-count if sex==1 & nrn==. //1324 - check if there is a stata check for this e.g. soundex,etc - 0 changes
+count if sex==1 & nrn==. //2,603 - check if there is a stata check for this e.g. soundex,etc - 0 changes
 //list record_id ddda pname sex if sex==1 & nrn==.
 //recode sex 1=2 if record_id== //0 changes
 ** (20) invalid - male with female genital cod
@@ -253,7 +264,7 @@ count if sex==1 & (regexm(cod1a, "UTER") | regexm(cod1a, "OMA OF THE VULVA") | /
 */
 //recode sex 1=2 if record_id==70|record_id==711 //2 changes
 ** (21) visual check - first names for those missing nrn
-count if sex==2 & nrn==. //1265 - check if there is a stata check for this e.g. soundex,etc - 0 changes
+count if sex==2 & nrn==. //2,509 - check if there is a stata check for this e.g. soundex,etc - 0 changes
 //list record_id ddda pname sex if sex==2 & nrn==.
 
 
@@ -261,47 +272,22 @@ count if sex==2 & nrn==. //1265 - check if there is a stata check for this e.g. 
 ** (22) missing
 count if event==1 & age==. //0
 ** (23) missing - NRN not missing
-count if (age==.|age==0) & nrn!=. //14
+count if (age==.|age==0) & nrn!=. //0
 //list record_id pname age agetxt nrn dod cod1a if (age==.|age==0) & nrn!=. ,string(70)
+/*
 replace age=2 if record_id==15056
 replace agetxt=5 if record_id==15056
-replace age=1 if record_id==1236
-replace agetxt=5 if record_id==1236
-replace age=2 if record_id==892
-replace agetxt=6 if record_id==892
-replace age=2 if record_id==10241
-replace agetxt=5 if record_id==10241
-replace age=6 if record_id==11707
-replace agetxt=5 if record_id==11707
-replace age=3 if record_id==14273
-replace agetxt=5 if record_id==14273
-replace age=2 if record_id==4194
-replace agetxt=6 if record_id==4194
-replace age=2 if record_id==9096
-replace agetxt=5 if record_id==9096
-replace age=2 if record_id==7883
-replace agetxt=5 if record_id==7883
-replace age=3 if record_id==870
-replace agetxt=5 if record_id==870
-replace age=5 if record_id==10840
-replace agetxt=5 if record_id==10840
-replace age=3 if record_id==8510
-replace agetxt=5 if record_id==8510
-replace age=2 if record_id==8081
-replace agetxt=6 if record_id==8081
-replace age=1 if record_id==15275
-replace agetxt=5 if record_id==15275
-
+*/
 
 ** agetxt - 1 "Minutes" 2 "Hours" 3 "Days" 4 "Weeks" 5 "Months" 6 "Years" 99 "ND": FLAG 14
 ** (25) missing
 count if age!=. & agetxt==. //0
 ** (26) invalid
 count if age==999 & agetxt!=99 //0
-count if age!=999 & age!=. & agetxt==99 //24,114
-replace agetxt=6 if age!=999 & age!=. & agetxt==99 //24,114 changes
+count if age!=999 & age!=. & agetxt==99 //0
+replace agetxt=6 if age!=999 & age!=. & agetxt==99 //0 changes
 ** (27) visual check - NRN vs agetxt
-count if nrn!=. & age!=. & agetxt!=6 //21,858
+count if nrn!=. & age!=. & agetxt!=6 //16
 //list record_id ddda odda dod nrn age agetxt if nrn!=. & age!=. & agetxt!=6 //checked these using redcap db & electoral list
 
 
@@ -317,14 +303,14 @@ count if event==1 & dod>today //0
 sort record_id
 //list record_id ddda dod regdate pname if event==1 & dod>today
 ** (30) invalid - after reg date
-count if event==1 & dod>regdate //59 (check redcapdb for if any coroner cases; 2019 TF redcap report for 'true' 2019 cases)
+count if event==1 & dod>regdate //3 (check redcapdb for if any coroner cases; 2019 TF redcap report for 'true' 2019 cases)
 //list record_id ddda odda certtype dod regdate pname if event==1 & dod>regdate
 //swapval regdate dod if dod>regdate //ssc install swapval - doesn't work for dates, only for numeric or string values
 gen dod2=regdate if dod>regdate
 gen regdate2=dod if dod>regdate
 format dod2 regdate2 %tdCCYY-NN-DD
-replace dod=dod2 if dod2!=. //59 changes
-replace regdate=regdate2 if regdate2!=. //59 changes
+replace dod=dod2 if dod2!=. //3 changes
+replace regdate=regdate2 if regdate2!=. //3 changes
 drop dod2 regdate2
 
 
@@ -340,21 +326,21 @@ count if event==1 & dodyear<2008 & dodyear>2020 //0
     Year of |
       Death |      Freq.     Percent        Cum.
 ------------+-----------------------------------
-       2008 |      2,472        7.98        7.98
-       2009 |      2,356        7.61       15.59
-       2010 |      2,303        7.44       23.03
-       2011 |      2,386        7.70       30.73
-       2012 |      2,373        7.66       38.40
-       2013 |      2,410        7.78       46.18
-       2014 |      2,496        8.06       54.24
-       2015 |      2,494        8.05       62.29
-       2016 |      2,488        8.03       70.33
-       2017 |      2,531        8.17       78.50
-       2018 |      2,530        8.17       86.67
-       2019 |      2,787        9.00       95.67
-       2020 |      1,341        4.33      100.00
+       2008 |      2,472        7.67        7.67
+       2009 |      2,356        7.31       14.99
+       2010 |      2,303        7.15       22.14
+       2011 |      2,385        7.40       29.54
+       2012 |      2,373        7.37       36.91
+       2013 |      2,410        7.48       44.39
+       2014 |      2,496        7.75       52.14
+       2015 |      2,486        7.72       59.86
+       2016 |      2,489        7.73       67.59
+       2017 |      2,525        7.84       75.43
+       2018 |      2,528        7.85       83.28
+       2019 |      2,785        8.65       91.92
+       2020 |      2,602        8.08      100.00
 ------------+-----------------------------------
-      Total |     30,967      100.00
+      Total |     32,210      100.00
 */
 //drop if event==1 & dodyear>2020 //0 deleted
 
@@ -363,8 +349,11 @@ count if event==1 & dodyear<2008 & dodyear>2020 //0
 count if event==1 & nrnnd==. //0
 //list record_id ddda nrn if event==1 & nrnnd==.
 ** (34) invalid
-count if event==1 & nrn==. & nrnnd==1 //23
+count if event==1 & nrn==. & nrnnd==1 //0
 //list record_id ddda pname address age agetxt dod nrn nrnnd if event==1 & nrn==. & nrnnd==1
+
+
+/*
 preserve
 clear
 import excel using "`datapath'\version05\1-input\NRNmissing_elec_list.xlsx" , firstrow case(lower)
@@ -387,46 +376,51 @@ replace nrn=elec_nrn if nrn==. & elec_nrn!=. //21 changes
 replace agetxt=5 if record_id==4711
 replace agetxt=5 if record_id==4820
 drop elec_* _merge
+*/
+
 
 ** (35) invalid
 count if nrn!=. & nrnnd==2 //0
 //list record_id ddda odda pname nrn nrnnd if nrn!=. & nrnnd==2
 //replace nrnnd=1 if nrn!=. & nrnnd==2 //2 changes
 
+
 ** nrn: dob-####, partial missing=dob-9999, if missing=.: FLAG 18
 tostring nrn, gen(natregno) format("%10.0f")
-replace natregno="" if natregno=="." //2802 changes
+replace natregno="" if natregno=="." //2,886 changes
+replace natregno=natregno2 if dodyear==2020 //reinserting 2020 NRNs: 18 changes
+
 ** (36) missing
-count if event==1 & nrnnd==1 & (natregno==""|natregno=="9999999999") //2
-replace nrnnd=2 if event==1 & nrnnd==1 & (natregno==""|natregno=="9999999999") //2 changes
+count if event==1 & nrnnd==1 & (natregno==""|natregno=="9999999999") //0
+replace nrnnd=2 if event==1 & nrnnd==1 & (natregno==""|natregno=="9999999999") //0 changes
 ** (37) invalid - length (checked against electoral list; no error for DA if leading zero was in redcap db)
-count if natregno!="" & length(natregno)!=10 //290
+count if natregno!="" & length(natregno)!=10 //286
 //list record_id ddda odda pname age nrn natregno if natregno!="" & length(natregno)!=10
-replace natregno="0" + natregno if length(natregno)==9 //272 changes
+replace natregno="0" + natregno if length(natregno)==9 //269 changes
 replace natregno="00" + natregno if length(natregno)==8 //5 changes
-replace natregno="000" + natregno if length(natregno)==7 //13 changes
+replace natregno="000" + natregno if length(natregno)==7 //12 changes
 
 ** (38) invalid - dob but missing nrn #
-count if regexm(natregno,"9999")|regexm(natregno,"99") //935 (checked against electoral list)
+count if regexm(natregno,"9999")|regexm(natregno,"99") //898 (checked against electoral list)
 //list record_id ddda odda natregno pname if regexm(natregno,"9999")|regexm(natregno,"99")
 ** (39) invalid - female with 'male' NRN
-count if sex==2 & (regex(substr(natregno,-2,1), "[1,3,5,7,9]")) & !(strmatch(strupper(natregno), "*-9999*")) //491
+count if sex==2 & (regex(substr(natregno,-2,1), "[1,3,5,7,9]")) & !(strmatch(strupper(natregno), "*-9999*")) //472
 //list record_id ddda odda pname natregno sex cod* if sex==2 & (regex(substr(natregno,-2,1), "[1,3,5,7,9]")) & !(strmatch(strupper(natregno), "*-9999*"))
 //recode sex 2=1 if record_id==|record_id== //1 change
 ** (40) invalid - male with 'female' NRN
-count if sex==1 & regex(substr(natregno,-2,1), "[0,2,4,6,8]") //76
+count if sex==1 & regex(substr(natregno,-2,1), "[0,2,4,6,8]") //77
 //list record_id ddda odda pname natregno sex cod* if sex==1 & regex(substr(natregno,-2,1), "[0,2,4,6,8]")
 //recode sex 1=2 if record_id==|record_id== //2 changes
 ** (41) invalid - age vs dob(nrn)
 gen dobyr=substr(natregno, 1, 2) if natregno!=""
 gen dobmon=substr(natregno, 3, 2) if natregno!=""
 gen dobday=substr(natregno, 5, 2) if natregno!=""
-count if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") //303 - all correct
+count if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") //319 - all correct
 //list record_id pname age agetxt dod natregno dobyr dobmon dobday if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]")
-//replace dobyr="19"+dobyr if record_id==|record_id== //2 changes
-replace dobyr="20"+dobyr if age<21 & ((agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]")) //108 changes
+replace dobyr="19"+dobyr if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") & age>90 //213 changes
+replace dobyr="20"+dobyr if age<21 & ((agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]")) //124 changes
 //replace dobyr="20"+dobyr if (agetxt!=6 & natregno!="")|regex(substr(dobyr,1,1),"[0]") //5 changes
-replace dobyr="19"+dobyr if length(dobyr)==2 //28,269 changes
+replace dobyr="19"+dobyr if length(dobyr)==2 //29,260 changes
 
 count if length(dobyr)>4 //0
 count if dobday!="" & (dobday!="01"&dobday!="02"&dobday!="03"&dobday!="04"&dobday!="05"&dobday!="06"&dobday!="07"&dobday!="08"&dobday!="09"&dobday!="10"&dobday!="11"&dobday!="12" ///
@@ -444,18 +438,20 @@ count if dobmon!="" & (dobmon!="01"&dobmon!="02"&dobmon!="03"&dobmon!="04"&dobmo
 //replace dobmon="12" if record_id==186 //1 change
 //replace natregno=subinstr(natregno,"13","12",.) if record_id==186 //1 change
 
-gen birthdate=dobyr+dobmon+dobday
-gen dob=date(birthdate, "YMD")
+gen birthdate2=dobyr+dobmon+dobday
+gen dob=date(birthdate2, "YMD")
 format dob %tdCCYY-NN-DD
 gen age2=int((dod - dob)/365.25) //now use this to assign missing age
-count if age!=age2 & natregno!="" & dob!=. //63
+count if age!=age2 & natregno!="" & dob!=. //20
 sort record_id
 //list record_id pname age age2 agetxt dod dob natregno if age!=age2 & natregno!=""
+
 //replace age=95 if record_id==7 //1 change
 //replace agetxt=6 if record_id==7 //1 change
 //replace age=age2 if age!=age2 & natregno!="" & dob!=. & record_id!=484 //45 changes
-replace age=age2 if age!=age2 & natregno!="" & dob!=. & age2!=0 & agetxt==6 & age2!=. & record_id!=24537 & record_id!=24632 & record_id!=24637 & record_id!=25129 & record_id!=27007 & record_id!=27754 & record_id!=28175 & record_id!=30038 //38 changes
-drop nrn dob dobday dobmon dobyr age2
+replace age=age2 if age!=age2 & natregno!="" & dob!=. & age2!=0 & agetxt==6 & age2!=. & record_id!=4711 & record_id!=24537 & record_id!=24632 & record_id!=24637 & record_id!=25081 & record_id!=25129 & record_id!=27007 & record_id!=27754 & record_id!=28175 & record_id!=30038 & record_id!=32984 & record_id!=33636 & record_id!=33754 & record_id!=33907 & record_id!=33992 & record_id!=33995 //5 changes
+count if natregno=="" & natregno2!=""
+drop nrn dob dobday dobmon dobyr age2 natregno2
 rename natregno nrn
 
 
@@ -500,8 +496,8 @@ replace durationnum=999 if durationnum!=. & durationnum!=999 & durationtxt==. //
 count if durationnum!=999 & durationtxt==99 //6 - correct
 //list record_id ddda durationnum durationtxt onset* if durationnum!=999 & durationtxt==99
 //replace durationtxt=4 if record_id==351 //1 change
-count if durationnum==999 & durationtxt==99 //1529
-replace durationtxt=. if durationnum==999 & durationtxt==99 //1529 changes
+count if durationnum==999 & durationtxt==99 //1
+replace durationtxt=. if durationnum==999 & durationtxt==99 //1 change
 
 
 ** cod1a: Text, if missing=99: FLAG 23
@@ -512,7 +508,7 @@ count if event==1 & regexm(cod1a, "[a-z]") //0
 //list record_id ddda cod1a onsetnumcod1a onsettxtcod1a if event==1 & regexm(cod1a, "[a-z]")
 replace cod1a=upper(cod1a) //0 changes
 replace cod1a = rtrim(ltrim(itrim(cod1a))) //0 changes
-count if event==1 & regexm(cod1a,"NIL")|event==1 & regexm(cod1a,"ND") //4876 - all correct
+count if event==1 & regexm(cod1a,"NIL")|event==1 & regexm(cod1a,"ND") //4,980 - all correct
 //list record_id ddda cod1a if event==1 & regexm(cod1a,"NIL")|event==1 & regexm(cod1a,"ND")
 
 
@@ -534,10 +530,10 @@ count if onsetnumcod1a!=. & onsetnumcod1a!=999 & onsettxtcod1a==. //24,104
 //list record_id ddda onsetnumcod1a onsettxtcod1a if onsetnumcod1a!=. & onsetnumcod1a!=999 & onsettxtcod1a==.
 replace onsetnumcod1a=999 if onsetnumcod1a!=. & onsetnumcod1a!=999 & onsettxtcod1a==. //24,104 changes
 ** (54) possibly invalid
-count if onsetnumcod1a!=999 & onsettxtcod1a==99 //12 - correct
+count if onsetnumcod1a!=999 & onsettxtcod1a==99 //14 - correct
 //list record_id ddda duration* onsetnumcod1a onsettxtcod1a if onsetnumcod1a!=999 & onsettxtcod1a==99
-count if onsetnumcod1a==999 & onsettxtcod1a==99 //2755
-replace onsettxtcod1a=. if onsetnumcod1a==999 & onsettxtcod1a==99 //2755 changes
+count if onsetnumcod1a==999 & onsettxtcod1a==99 //1
+replace onsettxtcod1a=. if onsetnumcod1a==999 & onsettxtcod1a==99 //1 change
 
 
 ** cod1b: Text, if missing=99: FLAG 26
@@ -548,7 +544,7 @@ count if event==1 & regexm(cod1b, "[a-z]") //0
 //list record_id ddda odda cod1b onsetnumcod1b onsettxtcod1b if event==1 & regexm(cod1b, "[a-z]")
 replace cod1b=upper(cod1b) //0 changes
 replace cod1b = rtrim(ltrim(itrim(cod1b))) //0 changes
-count if event==1 & regexm(cod1b,"NIL")|event==1 & regexm(cod1b,"ND") //250 - all correct
+count if event==1 & regexm(cod1b,"NIL")|event==1 & regexm(cod1b,"ND") //325 - all correct
 //list record_id ddda cod1b if event==1 & regexm(cod1b,"NIL")|event==1 & regexm(cod1b,"ND")
 
 
@@ -560,7 +556,7 @@ count if event==1 & cod1b!="99" & onsetnumcod1b==. //0
 ** (58) possibly invalid
 count if onsetnumcod1b==999 & onsettxtcod1b!=. & onsettxtcod1b!=99 //110
 //list record_id ddda onsetnumcod1b onsettxtcod1b if onsetnumcod1b==999 & onsettxtcod1b!=. & onsettxtcod1b!=99
-replace onsetnumcod1b=99 if onsetnumcod1b==999 & onsettxtcod1b!=. & onsettxtcod1b!=99 //110 changes
+replace onsetnumcod1b=99 if onsetnumcod1b==999 & onsettxtcod1b!=. & onsettxtcod1b!=99 //0 changes
 count if onsetnumcod1b==99 & onsettxtcod1b==99 //0
 //list record_id ddda onsetnumcod1b onsettxtcod1b if onsetnumcod1b==99 & onsettxtcod1b==99
 //replace onsetnumcod1b=999 if record_id==|record_id== //2 changes
@@ -575,8 +571,8 @@ count if onsetnumcod1b!=999 & onsettxtcod1b==99 //16
 //list record_id ddda duration* onsetnumcod1b onsettxtcod1b if onsetnumcod1b!=999 & onsettxtcod1b==99
 replace onsetnumcod1b=999 if onsetnumcod1b==. & onsettxtcod1b==99 //14 changes
 //replace onsetnumcod1b=999 if onsetnumcod1b!=999 & onsettxtcod1b==99 //74 changes
-count if onsetnumcod1b==999 & onsettxtcod1b==99 //1863
-replace onsettxtcod1b=. if onsetnumcod1b==999 & onsettxtcod1b==99 //1863 changes
+count if onsetnumcod1b==999 & onsettxtcod1b==99 //1
+replace onsettxtcod1b=. if onsetnumcod1b==999 & onsettxtcod1b==99 //1 change
 
 
 ** cod1c: Text, if missing=99: FLAG 29
@@ -587,7 +583,7 @@ count if event==1 & regexm(cod1c, "[a-z]") //0
 //list record_id ddda cod1c onsetnumcod1c onsettxtcod1c if event==1 & regexm(cod1c, "[a-z]")
 replace cod1c=upper(cod1c) //0 changes
 replace cod1c = rtrim(ltrim(itrim(cod1c))) //0 changes
-count if event==1 & regexm(cod1c,"NIL")|event==1 & regexm(cod1c,"ND") //76 - all correct
+count if event==1 & regexm(cod1c,"NIL")|event==1 & regexm(cod1c,"ND") //95 - all correct
 //list record_id ddda cod1c if event==1 & regexm(cod1c,"NIL")|event==1 & regexm(cod1c,"ND")
 
 
@@ -614,8 +610,8 @@ count if onsetnumcod1c!=999 & onsettxtcod1c==99 //24
 //list record_id ddda duration* onsetnumcod1c onsettxtcod1c if onsetnumcod1c!=999 & onsettxtcod1c==99
 replace onsetnumcod1c=999 if onsetnumcod1c==. & onsettxtcod1c==99 //22 changes
 //replace onsetnumcod1c=999 if onsetnumcod1c!=999 & onsettxtcod1c==99 //131 changes
-count if onsetnumcod1c==999 & onsettxtcod1c==99 //684
-replace onsettxtcod1c=. if onsetnumcod1c==999 & onsettxtcod1c==99 //684 changes
+count if onsetnumcod1c==999 & onsettxtcod1c==99 //1
+replace onsettxtcod1c=. if onsetnumcod1c==999 & onsettxtcod1c==99 //1 change
 
 
 ** cod1d: Text, if missing=99: FLAG 32
@@ -627,7 +623,7 @@ count if event==1 & regexm(cod1d, "[a-z]") //0
 //list record_id ddda cod1d onsetnumcod1d onsettxtcod1d if event==1 & regexm(cod1d, "[a-z]")
 replace cod1d=upper(cod1d) //0 changes
 replace cod1d = rtrim(ltrim(itrim(cod1d))) //0 changes
-count if event==1 & regexm(cod1d,"NIL")|event==1 & regexm(cod1d,"ND") //16 - all correct
+count if event==1 & regexm(cod1d,"NIL")|event==1 & regexm(cod1d,"ND") //20 - all correct
 //list record_id ddda cod1d if event==1 & regexm(cod1d,"NIL")|event==1 & regexm(cod1d,"ND")
 
 
@@ -651,8 +647,8 @@ count if onsetnumcod1d!=. & onsetnumcod1d!=999 & onsettxtcod1d==. //0
 count if onsetnumcod1d!=999 & onsettxtcod1d==99 //25
 //list record_id ddda duration* onsetnumcod1d onsettxtcod1d if onsetnumcod1d!=999 & onsettxtcod1d==99
 replace onsetnumcod1d=999 if onsetnumcod1d!=999 & onsettxtcod1d==99 //25 changes
-count if onsetnumcod1d==999 & onsettxtcod1d==99 //219
-replace onsettxtcod1d=. if onsetnumcod1d==999 & onsettxtcod1d==99 //219 changes
+count if onsetnumcod1d==999 & onsettxtcod1d==99 //1
+replace onsettxtcod1d=. if onsetnumcod1d==999 & onsettxtcod1d==99 //1 change
 
 
 ** cod2a: Text, if missing=99: FLAG 35
@@ -664,7 +660,7 @@ count if event==1 & regexm(cod2a, "[a-z]") //0
 //list record_id ddda cod2a onsetnumcod2a onsettxtcod2a if event==1 & regexm(cod2a, "[a-z]")
 replace cod2a=upper(cod2a) //0 changes
 replace cod2a = rtrim(ltrim(itrim(cod2a))) //0 changes
-count if event==1 & regexm(cod2a,"NIL")|event==1 & regexm(cod2a,"ND") //130 - all correct
+count if event==1 & regexm(cod2a,"NIL")|event==1 & regexm(cod2a,"ND") //151 - all correct
 //list record_id ddda cod2a if event==1 & regexm(cod2a,"NIL")|event==1 & regexm(cod2a,"ND")
 
 
@@ -692,8 +688,8 @@ count if onsetnumcod2a!=999 & onsettxtcod2a==99 //18
 //list record_id ddda duration* onsetnumcod2a onsettxtcod2a if onsetnumcod2a!=999 & onsettxtcod2a==99
 replace onsetnumcod2a=999 if onsetnumcod2a==. & onsettxtcod2a==99 //15 changes
 //replace onsetnumcod2a=999 if onsetnumcod2a!=999 & onsettxtcod2a==99 //84 changes
-count if onsetnumcod2a==999 & onsettxtcod2a==99 //1241
-replace onsettxtcod2a=. if onsetnumcod2a==999 & onsettxtcod2a==99 //1241 changes
+count if onsetnumcod2a==999 & onsettxtcod2a==99 //1
+replace onsettxtcod2a=. if onsetnumcod2a==999 & onsettxtcod2a==99 //1 change
 
 
 ** cod2b: Text, if missing=99: FLAG 38
@@ -705,7 +701,7 @@ count if event==1 & regexm(cod2b, "[a-z]") //0
 //list record_id ddda cod2b onsetnumcod2b onsettxtcod2b if event==1 & regexm(cod2b, "[a-z]")
 replace cod2b=upper(cod2b) //0 changes
 replace cod2b = rtrim(ltrim(itrim(cod2b))) //0 changes
-count if event==1 & regexm(cod2b,"NIL")|event==1 & regexm(cod2b,"ND") //32 - all correct
+count if event==1 & regexm(cod2b,"NIL")|event==1 & regexm(cod2b,"ND") //38 - all correct
 //list record_id ddda cod2b if event==1 & regexm(cod2b,"NIL")|event==1 & regexm(cod2b,"ND")
 
 
@@ -732,8 +728,8 @@ count if onsetnumcod2b!=999 & onsettxtcod2b==99 //25
 replace onsetnumcod2b=999 if onsetnumcod2b==. & onsettxtcod2b==99 //23 changes
 //replace onsetnumcod2b=999 if onsetnumcod2b!=999 & onsettxtcod2b==99 //125 changes
 //replace onsettxtcod2b=. if onsetnumcod2b!=999 & onsettxtcod2b==99 //125 changes
-count if onsetnumcod2b==999 & onsettxtcod2b==99 //617
-replace onsettxtcod2b=. if onsetnumcod2b==999 & onsettxtcod2b==99 //617 changes
+count if onsetnumcod2b==999 & onsettxtcod2b==99 //1
+replace onsettxtcod2b=. if onsetnumcod2b==999 & onsettxtcod2b==99 //1 change
 
 
 ** pod: Text, if missing=99: FLAG 41
@@ -745,7 +741,7 @@ count if event==1 & regexm(pod, "[a-z]") //0
 //list record_id ddda pod if event==1 & regexm(pod, "[a-z]")
 replace pod=upper(pod) //0 changes
 replace pod = rtrim(ltrim(itrim(pod))) //0 changes
-count if event==1 & regexm(pod,"NIL")|event==1 & regexm(pod,"ND") //1753 - all correct
+count if event==1 & regexm(pod,"NIL")|event==1 & regexm(pod,"ND") //1,836 - all correct
 //list record_id ddda pod if event==1 & regexm(pod,"NIL")|event==1 & regexm(pod,"ND")
 
 
@@ -763,69 +759,55 @@ count if event==1 & deathparish==. //0
 		District F - st. joseph, st. andrew
 */
 ** (88) Christ Church
-count if deathparish==1 & district!=1 //2049 - all correct
+count if deathparish==1 & district!=1 //2,159 - all correct
 //list record_id ddda district pod deathparish if deathparish==1 & district!=1
 ** (89) St Andrew
-count if deathparish==2 & district!=6 //2
+count if deathparish==2 & district!=6 //0
 //list record_id ddda deathparish district pod if deathparish==2 & district!=6
-replace district=6 if deathparish==2 & district!=6 //2 changes
+//replace district=6 if deathparish==2 & district!=6 //2 changes
 ** (90) St George
-count if deathparish==3 & district!=2 //1
+count if deathparish==3 & district!=2 //0
 //list record_id ddda deathparish district pod if deathparish==3 & district!=2
-replace district=2 if deathparish==3 & district!=2 //1 change
+//replace district=2 if deathparish==3 & district!=2 //1 change
 ** (91) St James
-count if deathparish==4 & district!=5 //1
+count if deathparish==4 & district!=5 //0
 //list record_id ddda deathparish district pod if deathparish==4 & district!=5
-replace district=5 if deathparish==4 & district!=5 //1 change
+//replace district=5 if deathparish==4 & district!=5 //1 change
 ** (92) St John
 count if deathparish==5 & district!=3 //0
 //list record_id ddda deathparish district pod if deathparish==5 & district!=3
 //replace district=3 if record_id==2891 //1 change
 ** (93) St Joseph
-count if deathparish==6 & district!=6 //1
+count if deathparish==6 & district!=6 //0
 //list record_id ddda deathparish district pod if deathparish==6 & district!=6
-replace district=6 if deathparish==6 & district!=6 //1 change
+//replace district=6 if deathparish==6 & district!=6 //1 change
 ** (94) St Lucy
 count if deathparish==7 & district!=5 //0
 //list record_id ddda deathparish district pod if deathparish==7 & district!=5
 //replace district=5 if record_id==2629 //1 change
 ** (95) St Michael
-count if deathparish==8 & district!=1 //2
+count if deathparish==8 & district!=1 //0
 //list record_id ddda deathparish district pod if deathparish==8 & district!=1
-replace district=1 if deathparish==8 & district!=1 //2 changes
+//replace district=1 if deathparish==8 & district!=1 //2 changes
 ** (96) St Peter
 count if deathparish==9 & district!=5 //0
 //list record_id ddda deathparish district pod if deathparish==9 & district!=5
 //replace deathparish=8 if record_id==185 //1 change
 //replace district=5 if record_id==2568 // change
 ** (97) St Philip
-count if deathparish==10 & district!=3 //1
+count if deathparish==10 & district!=3 //0
 //list record_id ddda deathparish district pod if deathparish==10 & district!=3
-replace deathparish=3 if deathparish==10 & district!=3 //1 change
+//replace deathparish=3 if deathparish==10 & district!=3 //1 change
 ** (98) St Thomas
-count if deathparish==11 & district!=4 //2
+count if deathparish==11 & district!=4 //0
 //list record_id ddda deathparish district pod if deathparish==11 & district!=4
-replace district=4 if deathparish==11 & district!=4 //2 changes
+//replace district=4 if deathparish==11 & district!=4 //2 changes
 
 
 ** regdate: Y-M-D: FLAG 43
 ** (99) missing
-count if event==1 & regdate==. //2 - 1 correct
+count if event==1 & regdate==. //1 correct
 //list record_id ddda pname dod regdate dodyear if event==1 & regdate==.
-replace onsetnumcod1c=15 if record_id==24982
-replace onsettxtcod1c=4 if record_id==24982
-replace cod2a="CHRONIC OBSTRUCTIVE PULMONARY DISEASE" if record_id==24982
-replace onsetnumcod2a=10 if record_id==24982
-replace onsettxtcod2a=4 if record_id==24982
-replace cod2b="HYPERTENSION" if record_id==24982
-replace onsetnumcod2b=10 if record_id==24982
-replace onsettxtcod2b=4 if record_id==24982
-replace pod="PHILLIPS ROAD, ST. STEPHENS HILL" if record_id==24982
-replace deathparish=8 if record_id==24982
-replace regdate=d(26may2018) if record_id==24982
-replace certifier="KIMBERLY PHILLIPS" if record_id==24982
-replace certifieraddr="BRANFORD TAITT POLYCLINIC, BLACK ROCK, ST. MICHAEL" if record_id==24982
-
 
 ** (100) invalid - future date
 count if event==1 & regdate!=. & regdate>today //0
@@ -847,7 +829,7 @@ count if event==1 & regexm(certifier, "[a-z]") //0
 //list record_id ddda certifier if event==1 & regexm(certifier, "[a-z]")
 replace certifier=upper(certifier) //0 changes
 replace certifier = rtrim(ltrim(itrim(certifier))) //0 changes
-count if event==1 & regexm(certifier,"NIL")|event==1 & regexm(certifier,"ND") //661 - all correct
+count if event==1 & regexm(certifier,"NIL")|event==1 & regexm(certifier,"ND") //801 - all correct
 //list record_id ddda certifier if event==1 & regexm(certifier,"NIL")|event==1 & regexm(certifier,"ND")
 
 
@@ -861,23 +843,23 @@ count if event==1 & regexm(certifieraddr, "[a-z]") //0
 //list record_id ddda certifieraddr if event==1 & regexm(certifieraddr, "[a-z]")
 replace certifieraddr=upper(certifieraddr) //0 changes
 replace certifieraddr = rtrim(ltrim(itrim(certifieraddr))) //1 change
-count if event==1 & regexm(certifieraddr,"NIL")|event==1 & regexm(certifieraddr,"ND") //264 - all correct
+count if event==1 & regexm(certifieraddr,"NIL")|event==1 & regexm(certifieraddr,"ND") //285 - all correct
 //list record_id ddda certifieraddr if event==1 & regexm(certifieraddr,"NIL")|event==1 & regexm(certifieraddr,"ND")
 
 
 ** namematch: readonly: FLAG 46
 ** (105) missing
-count if event==1 & namematch==. //0 - already checked for duplicates above
-replace namematch=2 if event==1 & namematch==. //0 changes
+count if event==1 & namematch==. //2 - already checked for duplicates above; these are ones that were added into 2008-2020 db from 2018 and 2019 dbs post-cleaning
+replace namematch=2 if event==1 & namematch==. //2 changes
 //list record_id ddda namematch if event==1 & namematch==.
 
 
 ** cleaned: 1=Yes; 2=No: FLAG 47
 ** (105) missing
-count if event==1 & cleaned==. //0
+count if event==1 & cleaned==. //2
 count if event==1 & cleaned==2 //0
 //tab cleaned if event==1 ,m
-replace cleaned=1 if event==1 & (cleaned==.|cleaned==2) //0 changes
+replace cleaned=1 if event==1 & (cleaned==.|cleaned==2) //2 changes
 
 
 ** death_certificate_complete (auto-generated by REDCap): 0=Incomplete 1=Unverified 2=Complete: FLAG 48
@@ -909,17 +891,19 @@ count if event==2 & tfdddoatstart==. //0
 
 ** tfddda: readonly, user logged into redcap: FLAG 51
 ** (111) missing
-count if event==2 & tfddda==. //73 - checked Logging in REDCap db
-//list record_id if event==2 & tfddda==.
-replace tfddda=4 if tfddda2=="4" //18 changes
-replace tfddda=13 if tfddda2=="13" //10 changes
-replace tfddda=14 if tfddda2=="14" //6 changes
-replace tfddda=20 if tfddda2=="20" //6 changes
-replace tfddda=25 if tfddda2=="25" //25 changes
-replace tfddda=98 if tfddda2=="98" //8 changes
+count if event==2 & tfddda==. //12 - checked Logging in REDCap db
+//list record_id tfddda2 if event==2 & tfddda==.
+replace tfddda=4 if tfddda2=="4" //0 changes
+replace tfddda=13 if tfddda2=="13" //0 changes
+replace tfddda=14 if tfddda2=="14" //0 changes
+replace tfddda=20 if tfddda2=="20" //0 changes
+replace tfddda=25 if tfddda2=="25" //0 changes
+replace tfddda=98 if tfddda2=="98" //0 changes
+replace tfddda=98 if event==2 & tfddda==. //12 changes
 count if event==2 & tfddda==. //0
-count if length(tfddda2)<4 & tfddda2!="" //87
+count if length(tfddda2)<4 & tfddda2!="" //0
 //list record_id tfddda2 if length(tfddda2)<4 & tfddda2!=""
+/*
 replace tfddda2="ivanna.bascombe" if tfddda2=="ib" //1 change
 replace tfddda2="asia.blackman" if tfddda2=="ab" //9 changes
 replace tfddda2="karen.greene" if tfddda2=="kg"|tfddda2=="4" //18 changes
@@ -929,6 +913,7 @@ replace tfddda2="nicolette.roachford" if tfddda2=="nr"|tfddda2=="20" //6 changes
 replace tfddda2="ashley.henry" if tfddda2=="ah"|tfddda2=="25" //25 changes
 replace tfddda2="bnr.intern" if tfddda2=="98" //8 changes
 replace tfddda2="thelema.grannum" if tfddda2=="tg"|tfddda2=="t.g"|tfddda2=="t.g." //4 changes
+*/
 count if tfddda!=. & tfddda2=="" //0
 count if tfddda2!="" & tfddda==. //0
 
@@ -965,9 +950,9 @@ count if event==2 & regexm(tfdistrictend, "[a-z]") //0
 
 ** tfdddoaend: Y-M-D, readonly: FLAG 56
 ** (118) missing
-count if event==2 & tfdddoaend==. //126
+count if event==2 & tfdddoaend==. //0
 //list record_id tfdddoa if event==2 & tfdddoaend==.
-replace tfdddoaend=tfdddoa if event==2 & tfdddoaend==. //126 changes
+replace tfdddoaend=tfdddoa if event==2 & tfdddoaend==. //0 changes
 
 
 ** tfdddoatend: H:M, readonly: FLAG 57
@@ -1001,7 +986,7 @@ replace tfddtxt = rtrim(ltrim(itrim(tfddtxt))) //0 changes
 ** (121) missing
 count if event==2 & recstattf==. //0
 ** (122) invalid - incomplete and no reason given in field comment of redcapdb
-count if event==2 & recstattf==0 //1
+count if event==2 & recstattf==0 //0
 //list record_id tfddda tfdddoa recstattf if event==2 & recstattf==0
 replace recstattf=2 if event==2 & recstattf==0 //1 change
 ** (123) invalid - unverified and no reason given in field comment of redcapdb
@@ -1021,7 +1006,7 @@ order record_id redcap_event_name event dddoa ddda odda certtype regnum district
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
       tfddelapsedh tfddelapsedm tfdddoaend tfdddoatend tfddtxt recstattf
 
-count //31,179
+count //32,465
 
 label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
@@ -1029,7 +1014,7 @@ save "`datapath'\version05\3-output\2008-2020_deaths_cleaned_dqi_dc" ,replace
 
 
 ** REMOVE variables and labels not needed in DeathData REDCap database
-drop birthdate t_1 t_2 tfdddoatstart2 tfdddoa2 birthdate
+drop birthdate record_id2 flag* corr_* birthdate birthdate2
 label drop _all
 
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
@@ -1053,11 +1038,11 @@ order record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname
 	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
 	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
 	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
-	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  regdate certifier certifieraddr namematch duprec cleaned elecmatch death_certificate_complete ///
 	  tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddtxt tracking_complete
 
 	  
-count //31,179
+count //32,465
 
 label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database

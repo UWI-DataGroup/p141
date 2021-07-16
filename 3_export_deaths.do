@@ -3,12 +3,12 @@
     //  algorithm name          3_export_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      05-OCT-2020
-    // 	date last modified      05-OCT-2020
+    //  date first created      15-JUL-2021
+    // 	date last modified      15-JUL-2021
     //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
     //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
-    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //  note                    After 2020 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
     //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
     //                          so decision made to re-clean this dataset.
     //                          To re-build REDCap database with ALL cleaned deaths.
@@ -43,7 +43,7 @@
 ***************
 use "`datapath'\version05\3-output\2008-2020_deaths_cleaned_export_dc"
 
-count //31,179
+count //32,465
 
 
 ***************
@@ -55,10 +55,10 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
 	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
 	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
-	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  regdate certifier certifieraddr namematch duprec cleaned elecmatch death_certificate_complete ///
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
-using "`datapath'\version05\3-output\2020-10-05_Cleaned_2008-2020_DeathData_REDCap_JC_V01.csv", replace
+using "`datapath'\version05\3-output\2021-07-15_Cleaned_2008-2020_DeathData_REDCap_JC_V01.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES
@@ -86,7 +86,7 @@ using "`datapath'\version05\3-output\2020-10-05_Cleaned_2008-2020_DeathData_REDC
 */
 
 
-count //31,179
+count //32,465
 
 label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database

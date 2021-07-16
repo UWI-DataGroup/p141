@@ -3,12 +3,12 @@
     //  algorithm name          1_prep_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      05-OCT-2020
-    // 	date last modified      05-OCT-2020
+    //  date first created      15-JUL-2021
+    // 	date last modified      15-JUL-2021
     //  algorithm task          Prep and format death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
-    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //  note                    After 2020 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
     //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
     //                          so decision made to re-clean this dataset.
     //                          To re-build REDCap database with ALL cleaned deaths.
@@ -43,7 +43,7 @@
 ********************
 use "`datapath'\version05\2-working\2008-2020_deaths_imported_dp"
 
-count //31,471
+count //31,163
 
 *******************
 ** DATA FORMATTING  
@@ -266,24 +266,7 @@ label values recstatdc recstatdc_lab
 *******************
 
 ** (48) tfdddoa: Y-M-D H:M, readonly
-** split date and time into parts
-split tfdddoa, parse(" ") gen (t_) destring
-gen tfdddoatstart2 = clock(t_2, "hm")
-format tfdddoatstart2 %tchH:MM
-replace tfdddoatstart=tfdddoatstart2 if tfdddoatstart2!=. //126 changes
-
-replace tfdddoa = rtrim(ltrim(itrim(tfdddoa))) //30 changes
-generate tfdddoa2=date(tfdddoa,"MDY")
-format tfdddoa2 %tdYYYY-NN-DD
-
-replace tfdddoa = "" if tfdddoa2!=. //86 changes
-gen tfdddoa3=date(t_1, "YMD")
-format tfdddoa3 %tdCCYY-NN-DD
-
-replace tfdddoa3 = tfdddoa2 if tfdddoa3==. & tfdddoa2!=. //86 changes
-drop tfdddoa
-rename tfdddoa3 tfdddoa
-
+format tfdddoa %tdCCYY-NN-DD
 label var tfdddoa "TF Date-Start"
 
 ** (49) tfdddoatstart: HH:MM
@@ -294,7 +277,9 @@ label var tfdddoatstart "TF Time-Start"
 gen tfddda1=.
 replace tfddda1=25 if tfddda=="ashley.henry" //using codebook tfddda to see all possible entries in this field
 replace tfddda1=25 if tfddda=="ashleyhenry"
+replace tfddda1=25 if tfddda=="ah"
 replace tfddda1=4 if tfddda=="karen.greene"
+replace tfddda1=4 if tfddda=="kg"
 replace tfddda1=13 if tfddda=="kirt.gill"
 replace tfddda1=20 if tfddda=="nicolette.roachford"
 replace tfddda1=14 if tfddda=="tamisha.hunte"
@@ -355,7 +340,7 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //31,471
+count //31,163
 
 label data "BNR MORTALITY data 2008-2020"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database

@@ -1,3 +1,6 @@
+** This dofile not needed for ALL deaths dataset.
+
+/*
 ** HEADER -----------------------------------------------------
 **  DO-FILE METADATA
     //  algorithm name          4_quality_deaths.do

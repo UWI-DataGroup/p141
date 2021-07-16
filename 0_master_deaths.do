@@ -3,12 +3,12 @@
     //  algorithm name          0_master_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      05-OCT-2020
-    // 	date last modified      05-OCT-2020
+    //  date first created      15-JUL-2021
+    // 	date last modified      15-JUL-2021
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
     //  objectve                To have one dataset with cleaned and standardized 2008-2020 death data.
-    //  note                    After 2019 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
+    //  note                    After 2020 Pt.2 was cleaned and imported into 2008-2020 REDCap database, 
     //                          many duplicates were found - also the dataset had changed slightly from when this db was created,
     //                          so decision made to re-clean this dataset.
     //                          To re-build REDCap database with ALL cleaned deaths.
@@ -42,12 +42,12 @@
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version05\1-input\BNRDeathData20082020_DATA_2020-10-05_1353_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version05\1-input\BNRDeathData20082020_DATA_2021-07-15_1224_excel.xlsx" , firstrow case(lower)
 
 save "`datapath'\version05\2-working\2008-2020_deaths_imported_dp" ,replace
 
-count //31,471
-
+count //31,163
+stop
 ** IMPORTANT NOTE: if cleaning same year but at different times, 
 ** include the previously cleaned data to this dataset so to fully identify all duplicate certificates
 
