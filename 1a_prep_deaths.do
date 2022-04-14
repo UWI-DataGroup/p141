@@ -1,6 +1,6 @@
 ** HEADER -----------------------------------------------------
 **  DO-FILE METADATA
-    //  algorithm name          1_prep_deaths.do
+    //  algorithm name          1a_prep_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
@@ -33,13 +33,13 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\1_prep_deaths_2021.smcl", replace
+    log using "`logpath'\1a_prep_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ********************
 ** DATA PREPARATION  
 ********************
-use "`datapath'\version07\2-working\2021_deaths_imported_dp"
+use "`datapath'\version07\2-working\2021_deaths_imported_dp" ,clear
 
 count //3,112
 
@@ -78,6 +78,8 @@ label define ddda_lab 4 "KG" 13 "KWG" 14 "TH" 20 "NR" 25 "AH" 98 "intern", modif
 label values ddda ddda_lab
 
 ** (5) odda
+if odda==. tostring odda ,replace
+replace odda="" if odda=="."
 label var odda "ABS Other DA"
 
 ** (6) certtype: 1=MEDICAL 2=POST MORTEM 3=CORONER 99=ND, required
