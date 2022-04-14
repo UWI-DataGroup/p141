@@ -3,17 +3,17 @@
     //  algorithm name          0_master_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      15-JULY-2021
-    // 	date last modified      15-JULY-2021
+    //  date first created      14-APR-2022
+    // 	date last modified      14-APR-2022
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2020 death data.
-    //  note                    Cleaned 2020 dataset to be imported to 2008-2020 REDCap database; 
-    //                          Redcap database with ALL cleaned deaths to be created.
+    //  objectve                To have one dataset with cleaned 2021 death data.
+    //  note                    Cleaned 2021 dataset to be imported to multi-year (2008-2020) REDCap database; 
+    //                          REDCap database with ALL cleaned deaths to be created.
 
     
     ** General algorithm set-up
-    version 16
+    version 17.0
     clear all
     macro drop _all
     set more off
@@ -33,18 +33,18 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\0_master_deaths_2020.smcl", replace
+    log using "`logpath'\0_master_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** DATA IMPORT  
 ***************
 ** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version06\1-input\BNRDeathData2020_DATA_2021-07-15_1221_excel.xlsx" , firstrow case(lower)
+import excel using "`datapath'\version07\1-input\BNRDeathData2021_DATA_2022-04-14_0721_excel.xlsx" , firstrow case(lower)
 
-save "`datapath'\version06\2-working\2020_deaths_imported_dp" ,replace
+save "`datapath'\version07\2-working\2021_deaths_imported_dp" ,replace
 
-count //2,697
+count //3,112
 
 ***************
 ** RUN DOFILES  
@@ -53,19 +53,23 @@ count //2,697
 ** Basic cleaning included checking the GA-CDRC electoral list for mismatched National ID #s (nrn)
 ** 1st dofile: to rename and format variables to match variables in DeathData REDCap database
 do "`logpath'\1_prep_deaths.do"
-** Dataset = 2018_deaths_prepped_dp.dta
+** Dataset = yyyy_deaths_prepped_dp.dta
 
 ** 2nd dofile: to clean death dataset removing invalid values and creating variables for export
 do "`logpath'\2_clean_deaths.do"
-** Dataset = 2018_deaths_cleaned_dc.dta
+** Dataset = yyyy_deaths_cleaned_dc.dta
 
 ** 3rd dofile: to export data as excel sheet in preparation for import to DeathData REDCap database
 do "`logpath'\3_export_deaths.do"
-** Dataset = 2018_deaths_exported_dc.dta 
+** Dataset = yyyy_deaths_exported_dc.dta 
 
 ** 4th dofile: to create report on quality of death data per DA
 do "`logpath'\4_quality_deaths.do"
-** Dataset = 2018_deaths_report_dqi_da.dta
+** Dataset = yyyy_deaths_report_dqi_da.dta
+
+** 5th dofile: to identify possible duplicates, update name match variable and export data as excel sheet for import to multi-year DeathData REDCap database
+do "`logpath'\5_duplicates_all_deaths.do"
+** Dataset = yyyy_deaths_exported_all_dc.dta
 
 **********************************************************
 /*
