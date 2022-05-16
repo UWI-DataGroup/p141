@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    // 	date last modified      09-MAY-2022
+    // 	date last modified      16-MAY-2022
     //  algorithm task          Prep and format electoral data
     //  status                  Completed
     //  objectve                To have one dataset with formatted electoral data for matching with death dataset.
@@ -33,7 +33,7 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\1b_prep_electoral_2021.smcl", replace
+    log using "`logpath'\1b_prep_electoral_2019+2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
 
@@ -611,3 +611,70 @@ erase "`datapath'\version07\2-working\2021_electoral_prepped_5.dta"
 label data "BNR ELECTORAL data 2021"
 notes _dta :These data prepared from EBC register
 save "`datapath'\version07\2-working\2021_electoral_prepped_dp" ,replace
+
+
+
+*****************
+**   Merging   **
+** 2019 + 2021 **
+**    lists    **
+*****************
+
+** JC 16may2022: Some names on the 2019 electoral list are missing from the 2021 electoral list so will merge the lists so the cancer team just has one 'master' list to check
+
+**********************
+** Format 2019 list **
+**********************
+
+use "`datapath'\version07\2-working\2019_electoral_prepped_dp" ,clear
+
+gen elec_name=elec_firstname+" "+elec_middlename
+drop elec_firstname elec_middlename
+rename elec_lastname elec_surname
+gen elec_address=elec_housenumber+" "+elec_address2+" "+elec_address3
+drop elec_housenumber elec_address2 elec_address3
+rename elec_parish elec_constituency
+format elec_dateofbirth %tddmCY
+gen elec_dob=string(elec_dateofbirth, "%td")
+drop elec_dateofbirth
+rename elec_dob elec_dateofbirth
+rename elec_sex elec_gender
+
+count //508,930
+save "`datapath'\version07\2-working\2019_electoral_merge_prepped_dp" ,replace
+
+**********************
+** Format 2021 list **
+**********************
+
+use "`datapath'\version07\2-working\2021_electoral_prepped_dp" ,clear
+
+count //264,940
+
+** Format NRN in 2021 list to be the same as NRN in the 2019 list in prep for merging
+replace elec_nrn=subinstr(elec_nrn,"-","",.)
+
+merge m:m elec_nrn using "`datapath'\version07\2-working\2019_electoral_merge_prepped_dp"
+/*
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                       246,949
+        from master                     1,504  (_merge==1)
+        from using                    245,445  (_merge==2)
+
+    Matched                           263,485  (_merge==3)
+    -----------------------------------------
+*/
+drop elec_id
+gen elec_id=_n
+drop _merge
+
+order elec_id elec_nrn elec_name elec_surname elec_gender elec_dateofbirth elec_address elec_constituency elec_residentialstatus elec_pd elec_pname elec_placeofbirthdesc elec_nationalitydesc
+
+** Create excel workbook with all electoral lists combined for CVD and Cancer teams to use
+capture export_excel elec_id elec_nrn elec_name elec_surname elec_gender elec_dateofbirth elec_address elec_constituency elec_residentialstatus elec_pd elec_placeofbirthdesc elec_nationalitydesc using "`datapath'\version07\3-output\2019+2021_ElectoralList_20220516.xlsx", firstrow(varlabels) replace
+
+count //510,434
+
+save "`datapath'\version07\3-output\2019+2021_electoral_prepped_dp" ,replace
+
