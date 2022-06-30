@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      29-JUN-2022
-    //  date last modified      29-JUN-2022
+    //  date last modified      30-JUN-2022
     //  algorithm task          Unduplication of death data
     //  status                  Completed
     //  objectve                To have one dataset with unduplicated death data.
@@ -81,6 +81,9 @@ count //3,112
     capture log close
     log using "`logpath'\1a_prep_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
+
+
+** JC 30jun2022: This dofile was re-run to include record_id 3232 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
 
 ***************
 ** DATA IMPORT  
@@ -461,7 +464,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 	  
-count //3228
+count //3228; 3229
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database

@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    //  date last modified      29-JUN-2022
+    //  date last modified      30-JUN-2022
     //  algorithm task          Clean death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2021 death data.
@@ -36,6 +36,8 @@
     capture log close
     log using "`logpath'\2a_clean_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
+
+** JC 30jun2022: This dofile was re-run to include record_id 3232 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
 
 ***************
 ** LOAD DATASET  
@@ -1331,7 +1333,7 @@ order record_id redcap_event_name event dddoa ddda odda certtype regnum district
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
       tfddelapsedh tfddelapsedm tfdddoaend tfdddoatend tfddtxt recstattf
 
-count //3228
+count //3228; 3229
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
@@ -1353,7 +1355,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 gen data_2021=1  //to differentiate between multi-year and single-year databases in dofile 2b_clean_all_deaths
-count //3228
+count //3228; 3229
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
