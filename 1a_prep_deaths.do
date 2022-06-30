@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    // 	date last modified      14-APR-2022
+    // 	date last modified      29-JUN-2022
     //  algorithm task          Prep and format death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2020 death data.
@@ -41,7 +41,7 @@
 ********************
 use "`datapath'\version07\2-working\2021_deaths_imported_dp" ,clear
 
-count //3,112
+count //3,112; 3231
 
 *******************
 ** DATA FORMATTING  
@@ -342,7 +342,7 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //2695
+count //2695; 3231
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database

@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    // 	date last modified      14-APR-2022
+    // 	date last modified      29-JUN-2022
     //  algorithm task          Import death data and run associated dofiles
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2021 death data.
@@ -39,13 +39,13 @@
 ***************
 ** DATA IMPORT  
 ***************
-** LOAD the national registry deaths 2008-2017 excel dataset
-import excel using "`datapath'\version07\1-input\BNRDeathData2021_DATA_2022-04-14_0721_excel.xlsx" , firstrow case(lower)
+** LOAD the national registry deaths 2021 excel dataset
+import excel using "`datapath'\version07\1-input\BNRDeathData2021_DATA_2022-06-29_0912_excel.xlsx" , firstrow case(lower)
 
 save "`datapath'\version07\2-working\2021_deaths_imported_dp" ,replace
 
-count //3,112
-
+count //3,112;  3231
+/*
 ***************
 ** RUN DOFILES  
 ***************

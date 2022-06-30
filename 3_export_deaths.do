@@ -3,17 +3,17 @@
     //  algorithm name          3_export_deaths.do
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
-    //  date first created      15-JULY-2021
-    // 	date last modified      15-JULY-2021
+    //  date first created      29-JUN-2022
+    // 	date last modified      29-JUN-2022
     //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2020 death data.
-    //  note                    Cleaned 2020 dataset to be merged with 2008-2019 death dataset; 
+    //  objectve                To have one dataset with cleaned 2021 death data.
+    //  note                    Cleaned 2021 dataset to be merged with 2008-2020 death dataset; 
     //                          Redcap database with ALL cleaned deaths to be created.
 
     
     ** General algorithm set-up
-    version 16
+    version 17.0
     clear all
     macro drop _all
     set more off
@@ -33,15 +33,15 @@
 
     ** Close any open log file and open a new log file
     capture log close
-    log using "`logpath'\3_export_deaths_2020.smcl", replace
+    log using "`logpath'\3_export_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
 ***************
 ** LOAD DATASET  
 ***************
-use "`datapath'\version06\3-output\2020_deaths_cleaned_export_dc"
+use "`datapath'\version07\3-output\2021_deaths_cleaned_export_dc"
 
-count //984
+count //3228
 
 
 ***************
@@ -78,7 +78,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
-using "`datapath'\version06\3-output\2021-07-15_Cleaned_2020_DeathData_REDCap_JC_V01.csv", replace
+using "`datapath'\version07\3-output\2022-06-29_Cleaned_2021_DeathData_REDCap_JC_V01.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES
@@ -98,7 +98,7 @@ using "`datapath'\version06\3-output\2021-07-15_Cleaned_2020_DeathData_REDCap_JC
 		tfdddoatstart:	hh:mm
 		tfregnumstart:	0000
 		tfregnumend:	0000
-		tfdddoaend:		yyyy-mm-dd hh:mm
+		tfdddoaend:		yyyy-mm-dd
 		tfdddoatend:	hh:mm
 	(3) Check last record_id used in REDCap 2008-2020 database
 	(4) Overwrite record_id starting with next sequential number
@@ -106,9 +106,9 @@ using "`datapath'\version06\3-output\2021-07-15_Cleaned_2020_DeathData_REDCap_JC
 */
 
 
-count //2690
+count //3228
 
-label data "BNR MORTALITY data 2020"
+label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
-save "`datapath'\version06\3-output\2020_deaths_exported_dc" ,replace
+save "`datapath'\version07\3-output\2021_deaths_exported_dc" ,replace
 
