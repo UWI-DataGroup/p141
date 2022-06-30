@@ -80,7 +80,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 using "`datapath'\version07\3-output\2022-06-29_Cleaned_2021_DeathData_REDCap_JC_V01.csv", replace
-*/
+
 
 ** JC 30jun2022: Below record (3232) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
 sort record_id
@@ -93,6 +93,18 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 if record_id==3232 using "`datapath'\version07\3-output\2022-06-30_Cleaned_2021_DeathData_REDCap_JC_V01_3232.csv", replace
+*/
+** JC 30jun2022: Below record (3233) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
+sort record_id
+export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
+	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
+	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
+	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
+	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
+	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
+	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
+if record_id==3233 using "`datapath'\version07\3-output\2022-06-30_Cleaned_2021_DeathData_REDCap_JC_V01_3233.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES

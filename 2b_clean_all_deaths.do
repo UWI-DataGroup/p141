@@ -37,52 +37,6 @@
     log using "`logpath'\2b_clean_all_deaths.smcl", replace
 ** HEADER -----------------------------------------------------
 
-***************
-** LOAD DATASET  
-***************
-use "`datapath'\version07\2-working\2021_deaths_prepped_dp" ,clear
-
-count //3,112
-
-** HEADER -----------------------------------------------------
-**  DO-FILE METADATA
-    //  algorithm name          1a_prep_deaths.do
-    //  project:                BNR
-    //  analysts:               Jacqueline CAMPBELL
-    //  date first created      14-APR-2022
-    // 	date last modified      29-JUN-2022
-    //  algorithm task          Prep and format death data
-    //  status                  Completed
-    //  objectve                To have one dataset with cleaned 2020 death data.
-    //  note                    Cleaned 2021 dataset to be merged with multi-year (2008-2020) death dataset; 
-    //                          REDCap database with ALL cleaned deaths to be created.
-
-    
-    ** General algorithm set-up
-    version 17.0
-    clear all
-    macro drop _all
-    set more off
-
-    ** Initialising the STATA log and allow automatic page scrolling
-    capture {
-            program drop _all
-    	drop _all
-    	log close
-    	}
-
-    ** Set working directories: this is for DATASET and LOGFILE import and export
-    ** DATASETS to encrypted SharePoint folder
-    local datapath "X:/The University of the West Indies/DataGroup - repo_data/data_p141"
-    ** LOGFILES to unencrypted OneDrive folder (.gitignore set to IGNORE log files on PUSH to GitHub)
-    local logpath X:/OneDrive - The University of the West Indies/repo_datagroup/repo_p141
-
-    ** Close any open log file and open a new log file
-    capture log close
-    log using "`logpath'\1a_prep_deaths_2021.smcl", replace
-** HEADER -----------------------------------------------------
-
-
 ** JC 30jun2022: This dofile was re-run to include record_id 3232 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
 
 ***************
@@ -443,7 +397,7 @@ restore
 ** REMOVE multi-year data
 count //35,436
 drop if data_2021!=1 //32,208 deleted
-count //3228
+count //3228; 3229; 3230
 
 drop corr_AH corr_KG corr_NR corr_KWG corr_TH corr_intern data_2021 tempvarn
 //drop tfddda2 - don't remove as needed in 3_export_deaths.do
@@ -464,7 +418,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 	  
-count //3228; 3229
+count //3228; 3229; 3230
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database

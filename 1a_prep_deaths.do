@@ -36,9 +36,9 @@
     log using "`logpath'\1a_prep_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
-** JC 30jun2022: Below record (3232) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
-import excel using "`datapath'\version07\1-input\BNRDeathData2021-Exporting3232_DATA_2022-06-30_1121_excel.xlsx" , firstrow case(lower)
-count //1
+** JC 30jun2022: Below records (3232 + 3233) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
+import excel using "`datapath'\version07\1-input\BNRDeathData2021-Exporting32323233_DATA_2022-06-30_1337_excel.xlsx" , firstrow case(lower)
+count //2
 tostring cod1d cod2a cod2b ,replace
 
 
@@ -348,13 +348,13 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //2695; 3231; 3232
+count //2695; 3231; 3232; 3233
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
 save "`datapath'\version07\2-working\2021_deaths_prepped_dp" ,replace
 
 ** Create dataset to add record_id 3232 (entered post cleaning) to the prepared cancer dataset in dofile 2b_clean_all_deaths
-keep if record_id==3232
+keep if record_id==3232|record_id==3233
 tostring nrn ,replace
-save "`datapath'\version07\2-working\2021_deaths_prepped_dp_3232" ,replace
+save "`datapath'\version07\2-working\2021_deaths_prepped_dp_3232+3233" ,replace
