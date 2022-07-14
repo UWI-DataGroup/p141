@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    // 	date last modified      11-JUL-2022
+    // 	date last modified      14-JUL-2022
     //  algorithm task          Prep and format death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2020 death data.
@@ -36,9 +36,9 @@
     log using "`logpath'\1a_prep_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
-** JC 30jun2022+11JUL2022: Below records (3232 - 3236) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
-import excel using "`datapath'\version07\1-input\BNRDeathData2021-Exporting32323236_DATA_2022-07-11_1207_excel.xlsx" , firstrow case(lower)
-count //5
+** JC 30jun2022+11jul2022+14jul2022: Below records (3232 - 3242) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
+import excel using "`datapath'\version07\1-input\BNRDeathData2021-Exporting32323242_DATA_2022-07-14_1002_excel.xlsx" , firstrow case(lower)
+count //11
 tostring cod1d cod2a cod2b ,replace
 
 
@@ -47,7 +47,7 @@ tostring cod1d cod2a cod2b ,replace
 ********************
 append using "`datapath'\version07\2-working\2021_deaths_imported_dp"
 
-count //3,112; 3231; 3232; 3236
+count //3,112; 3231; 3232; 3236; 3242
 
 *******************
 ** DATA FORMATTING  
@@ -348,13 +348,14 @@ order record_id event dddoa ddda odda certtype regnum district pname address par
       pod deathparish regdate certifier certifieraddr namematch cleaned recstatdc ///
       tfdddoa tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend tfddelapsedh tfddelapsedm tfddtxt recstattf
 
-count //2695; 3231; 3232; 3233; 3236
+count //2695; 3231; 3232; 3233; 3236; 3242
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & Redcap deathdata database
 save "`datapath'\version07\2-working\2021_deaths_prepped_dp" ,replace
 
 ** Create dataset to add record_id 3232 (entered post cleaning) to the prepared cancer dataset in dofile 2b_clean_all_deaths
-keep if record_id==3232|record_id==3233|record_id==3234|record_id==3235|record_id==3236
+keep if record_id==3232|record_id==3233|record_id==3234|record_id==3235|record_id==3236|record_id==3237|record_id==3238|record_id==3239|record_id==3240|record_id==3241|record_id==3242
 tostring nrn ,replace
+count //11
 save "`datapath'\version07\2-working\2021_deaths_prepped_dp_extras" ,replace

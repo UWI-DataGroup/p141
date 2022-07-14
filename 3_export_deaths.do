@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      29-JUN-2022
-    // 	date last modified      11-JUL-2022
+    // 	date last modified      14-JUL-2022
     //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2021 death data.
@@ -41,7 +41,7 @@
 ***************
 use "`datapath'\version07\3-output\2021_deaths_cleaned_export_dc"
 
-count //3228; 3229; 3233
+count //3228; 3229; 3233; 3239
 
 
 ***************
@@ -105,7 +105,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 if record_id==3233 using "`datapath'\version07\3-output\2022-06-30_Cleaned_2021_DeathData_REDCap_JC_V01_3233.csv", replace
-*/
+
 ** JC 11jul2022: Below record (3234-3236) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
 sort record_id
 export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
@@ -117,6 +117,18 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 if record_id==3234|record_id==3235|record_id==3236 using "`datapath'\version07\3-output\2022-07-11_Cleaned_2021_DeathData_REDCap_JC_V01_3234-3236.csv", replace
+*/
+** JC 14jul2022: Below record (3237-3242) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
+sort record_id
+export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
+	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
+	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
+	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
+	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
+	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
+	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
+if record_id==3237|record_id==3238|record_id==3239|record_id==3240|record_id==3241|record_id==3242 using "`datapath'\version07\3-output\2022-07-14_Cleaned_2021_DeathData_REDCap_JC_V01_3237-3242.csv", replace
 
 **************************
 ** PERFORM MANUAL UPDATES
@@ -144,7 +156,7 @@ if record_id==3234|record_id==3235|record_id==3236 using "`datapath'\version07\3
 */
 
 
-count //3228; 3229; 3233
+count //3228; 3229; 3233; 3239
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
