@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      29-JUN-2022
-    //  date last modified      14-JUL-2022
+    //  date last modified      20-JUL-2022
     //  algorithm task          Unduplication of death data
     //  status                  Completed
     //  objectve                To have one dataset with unduplicated death data.
@@ -37,7 +37,7 @@
     log using "`logpath'\2b_clean_all_deaths.smcl", replace
 ** HEADER -----------------------------------------------------
 
-** JC 30jun2022+11jul2022+14jul2022: This dofile was re-run to include record_id 3232 - 3242 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
+** JC 30jun2022+11jul2022+14jul2022+20jul2022: This dofile was re-run to include record_id 3232 - 3243 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
 
 ***************
 ** DATA IMPORT  
@@ -395,9 +395,9 @@ restore
 */
 
 ** REMOVE multi-year data
-count //35,436
+count //35,448
 drop if data_2021!=1 //32,208 deleted
-count //3228; 3229; 3230; 3233; 3239
+count //3228; 3229; 3230; 3233; 3239; 3240
 
 drop corr_AH corr_KG corr_NR corr_KWG corr_TH corr_intern data_2021 tempvarn
 //drop tfddda2 - don't remove as needed in 3_export_deaths.do
@@ -418,7 +418,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 	  
-count //3228; 3229; 3230; 3233; 3239
+count //3228; 3229; 3230; 3233; 3239; 3240
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
