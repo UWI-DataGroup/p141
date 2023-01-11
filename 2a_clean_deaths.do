@@ -1355,7 +1355,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 gen data_2021=1  //to differentiate between multi-year and single-year databases in dofile 2b_clean_all_deaths
-count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249
+count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249 - JC 11jan2023 found a duplicate (2961 + 3243) but duplicate (2961) was removed from multi-yr db
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
