@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      14-APR-2022
-    //  date last modified      18-JAN-2023
+    //  date last modified      13-FEB-2023
     //  algorithm task          Clean death data
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2021 death data.
@@ -37,14 +37,14 @@
     log using "`logpath'\2a_clean_deaths_2021.smcl", replace
 ** HEADER -----------------------------------------------------
 
-** JC 30jun2022+11jul2022+14jul2022+20jul2022+21jul2022+03aug2022+11jan2023+18jan2023: This dofile was re-run to include record_id 3232 - 3252 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
+** JC 30jun2022+11jul2022+14jul2022+20jul2022+21jul2022+03aug2022+11jan2023+18jan2023+13feb2023: This dofile was re-run to include record_id 3232 - 3255 added by KG after completion of 2021 cleaning; Included in this process in prep for cancer annual report process
 
 ***************
 ** LOAD DATASET  
 ***************
 use "`datapath'\version07\2-working\2021_deaths_prepped_dp" ,clear
 
-count //3,112; 3231; 3233; 3236; 3242; 3243; 3245; 3246; 3253
+count //3,112; 3231; 3233; 3236; 3242; 3243; 3245; 3246; 3253; 3255
 
 
 *****************
@@ -1333,7 +1333,7 @@ order record_id redcap_event_name event dddoa ddda odda certtype regnum district
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
       tfddelapsedh tfddelapsedm tfdddoaend tfdddoatend tfddtxt recstattf
 
-count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249; 3250
+count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249; 3250; 3252
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
@@ -1355,7 +1355,7 @@ label drop _all
 ** REDCap will not import H:M:S format so had to change cfdate from %tcCCYY-NN-DD_HH:MM:SS to below format
 format dddoa %tcCCYY-NN-DD_HH:MM
 gen data_2021=1  //to differentiate between multi-year and single-year databases in dofile 2b_clean_all_deaths
-count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249; 3250 - JC 11jan2023 found a duplicate (2961 + 3243) but duplicate (2961) was removed from multi-yr db
+count //3228; 3229; 3230; 3233; 3239; 3240; 3242; 3243; 3249; 3250; 3252 - JC 11jan2023 found a duplicate (2961 + 3243) but duplicate (2961) was removed from multi-yr db
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database

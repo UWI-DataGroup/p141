@@ -4,7 +4,7 @@
     //  project:                BNR
     //  analysts:               Jacqueline CAMPBELL
     //  date first created      29-JUN-2022
-    // 	date last modified      18-JAN-2023
+    // 	date last modified      13-FEB-2023
     //  algorithm task          Export death data for import to Redcap BNRDeathData_2008-2020 database
     //  status                  Completed
     //  objectve                To have one dataset with cleaned 2021 death data.
@@ -41,7 +41,7 @@
 ***************
 use "`datapath'\version07\3-output\2021_deaths_cleaned_export_dc"
 
-count //3228; 3229; 3233; 3239; 3240; 3242; 3243; 3249; 3250
+count //3228; 3229; 3233; 3239; 3240; 3242; 3243; 3249; 3250; 3252
 
 
 ***************
@@ -177,7 +177,7 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 if record_id==3247|record_id==3248|record_id==3249|record_id==3250|record_id==3251|record_id==3252 using "`datapath'\version07\3-output\2023-01-11_Cleaned_2021_DeathData_REDCap_JC_V01_3247-3252.csv", replace
-*/
+
 ** JC 18jan2023: Below record (3253) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
 sort record_id
 export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
@@ -189,6 +189,18 @@ export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum dis
 	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
 	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
 if record_id==3253 using "`datapath'\version07\3-output\2023-01-18_Cleaned_2021_DeathData_REDCap_JC_V01_3253.csv", replace
+*/
+** JC 18jan2023: Below records (3254+3255) added by KG after completion of 2021 cleaning so manually reviewed and cleaned; Included in this process in prep for cancer annual report process
+sort record_id
+export_delimited record_id	redcap_event_name dddoa	ddda odda certtype regnum district pname address ///
+	  parish sex age agetxt nrnnd nrn mstatus occu durationnum durationtxt dod dodyear ///
+	  cod1a onsetnumcod1a onsettxtcod1a cod1b onsetnumcod1b onsettxtcod1b ///
+	  cod1c onsetnumcod1c onsettxtcod1c cod1d onsetnumcod1d onsettxtcod1d ///
+	  cod2a onsetnumcod2a onsettxtcod2a cod2b onsetnumcod2b onsettxtcod2b pod deathparish ///
+	  regdate certifier certifieraddr namematch duprec cleaned death_certificate_complete ///
+	  tfdddoa tfdddoatstart tfddda tfregnumstart tfdistrictstart tfregnumend tfdistrictend ///
+	  tfdddoaend tfdddoatend tfddelapsedh tfddelapsedm tfddtxt tracking_complete ///
+if record_id==3254|record_id==3255 using "`datapath'\version07\3-output\2023-02-13_Cleaned_2021_DeathData_REDCap_JC_V01_3254+3255.csv", replace
 
 
 **************************
@@ -217,7 +229,7 @@ if record_id==3253 using "`datapath'\version07\3-output\2023-01-18_Cleaned_2021_
 */
 
 
-count //3228; 3229; 3233; 3239; 3240; 3242; 3243; 3249; 3250
+count //3228; 3229; 3233; 3239; 3240; 3242; 3243; 3249; 3250; 3252
 
 label data "BNR MORTALITY data 2021"
 notes _dta :These data prepared from BB national death register & BNR (Redcap) deathdata database
